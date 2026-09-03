@@ -1,4 +1,10 @@
-
+CREATE TABLE riders (
+    id              INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name            VARCHAR(100) NOT NULL,
+    wallet_balance  DECIMAL(10,2) NOT NULL,
+    CONSTRAINT chk_riders_wallet_balance
+        CHECK (wallet_balance >= 0.00)
+);
 
 CREATE TABLE wallet_audit_logs (
     id              INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -17,3 +23,17 @@ CREATE TABLE vehicles (
     class           VARCHAR(50) NOT NULL,
     is_active       BOOLEAN NOT NULL DEFAULT TRUE
 );
+
+CREATE TABLE trips (
+    id              INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    rider_id        INT NOT NULL REFERENCES riders(id),
+    vehicle_id      INT NOT NULL REFERENCES vehicles(id),
+    fare_amount     DECIMAL(10,2) NOT NULL,
+    status          VARCHAR(20) NOT NULL DEFAULT 'REQUESTED',
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT chk_trips_status
+        CHECK (status IN ('REQUESTED', 'IN TRANSIT', 'COMPLETED')),
+    CONSTRAINT chk_trips_fare_non_negative
+        CHECK (fare_amount >= 0.00)
+);
+
