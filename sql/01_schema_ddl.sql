@@ -1,4 +1,10 @@
-
+CREATE TABLE riders (
+    id              INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name            VARCHAR(100) NOT NULL,
+    wallet_balance  DECIMAL(10,2) NOT NULL,
+    CONSTRAINT chk_riders_wallet_balance
+        CHECK (wallet_balance >= 0.00)
+);
 
 CREATE TABLE wallet_audit_logs (
     id              INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
