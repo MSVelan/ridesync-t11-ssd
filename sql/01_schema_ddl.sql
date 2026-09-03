@@ -1,12 +1,19 @@
 
 
 CREATE TABLE wallet_audit_logs (
-    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    rider_id INT NOT NULL REFERENCES riders(id),
-    amount_changed DECIMAL(10,2) NOT NULL,
-    action_type VARCHAR(10) NOT NULL
-        CHECK (action_type IN ('CREDIT', 'DEBIT')),
-    balance_after DECIMAL(10,2) NOT NULL
-        CHECK (balance_after >= 0.00),
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    id              INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    rider_id        INT NOT NULL REFERENCES riders(id),
+    amount_changed  DECIMAL(10,2) NOT NULL,
+    action_type     VARCHAR(10) NOT NULL
+    balance_after   DECIMAL(10,2) NOT NULL
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    CHECK (action_type IN ('CREDIT', 'DEBIT')),
+    CHECK (balance_after >= 0.00),
+);
+
+CREATE TABLE vehicles (
+    id              INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    license_plate   VARCHAR(20) NOT NULL UNIQUE,
+    class           VARCHAR(50) NOT NULL,
+    is_active       BOOLEAN NOT NULL DEFAULT TRUE
 );
