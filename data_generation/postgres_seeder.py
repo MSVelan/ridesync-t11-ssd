@@ -164,4 +164,5 @@ if __name__ == "__main__":
 
 
 # to run the seeder, use the following command:
-# python data_generation/postgres_seeder.py --dsn postgres://username:password@localhost:5432/postgres
+# in bash, do `set -a`, `source .env`, `set +a`
+# python data_generation/postgres_seeder.py --dsn "$NEON_DSN"
