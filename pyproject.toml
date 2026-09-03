@@ -5,5 +5,8 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "faker>=40.38.0",
     "graphviz>=0.21",
+    "psycopg2-binary>=2.9.12",
+    "tqdm>=4.70.0",
 ]
