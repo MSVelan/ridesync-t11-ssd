@@ -1,0 +1,149 @@
+{
+  "database": "ridesync",
+  "collections": {
+    "VehicleMetadata": {
+      "purpose": "Flexible catalogue documents holding inspection history and dynamic per-vehicle features.",
+      "required": [
+        "vehicle_id",
+        "features",
+        "inspections"
+      ],
+      "sample_document": {
+        "vehicle_id": 4821,
+        "features": {
+          "air_conditioning": true,
+          "child_seat": false,
+          "wheelchair_accessible": false,
+          "fuel_type": "CNG",
+          "infotainment": [
+            "bluetooth",
+            "usb_c"
+          ]
+        },
+        "inspections": [
+          {
+            "inspected_on": "2026-07-14T09:30:00Z",
+            "centre": "Kondapur Auto Hub",
+            "odometer_km": 68210,
+            "result": "PASS",
+            "notes": "Rear brake pads at 40%"
+          }
+        ],
+        "certifications": [
+          "PUC",
+          "COMMERCIAL_PERMIT"
+        ]
+      },
+      "field_notes": {
+        "vehicle_id": "int, unique. Matches vehicles.id in PostgreSQL.",
+        "features": "object, open-ended. New feature keys can appear without a migration.",
+        "inspections": "array of subdocuments, append-only history.",
+        "certifications": "array of strings, optional."
+      }
+    },
+    "TripReviews": {
+      "purpose": "Rider reviews of completed trips.",
+      "required": [
+        "trip_id",
+        "rider_id",
+        "rating",
+        "feedback_tags",
+        "city",
+        "created_at"
+      ],
+      "sample_document": {
+        "trip_id": 19233,
+        "rider_id": 7741,
+        "vehicle_id": 4821,
+        "rating": 4,
+        "feedback_tags": [
+          "clean_car",
+          "safe_driving"
+        ],
+        "comment": "Smooth ride, driver took the flyover route.",
+        "city": "Hyderabad",
+        "created_at": "2026-08-30T18:22:11Z"
+      },
+      "field_notes": {
+        "rating": "int, 1-5 inclusive. Enforced by the validator so the Workflow 4 histogram can never gain a sixth bucket.",
+        "feedback_tags": "array of strings. $unwind in Workflow 4 expands this, so it must always be an array, never a bare string.",
+        "city": "string. Equality predicate of the Workflow 4 $match, and the leading field of idx_reviews_city_created_at.",
+        "created_at": "BSON Date, never a string. The Workflow 4 $match compares it against a Date; a string field would silently match nothing."
+      }
+    },
+    "TelemetryPings": {
+      "purpose": "High-volume GPS location log emitted by active vehicles.",
+      "required": [
+        "vehicle_id",
+        "location",
+        "is_available",
+        "created_at"
+      ],
+      "sample_document": {
+        "vehicle_id": 4821,
+        "driver_id": 331,
+        "location": {
+          "type": "Point",
+          "coordinates": [
+            78.4867,
+            17.385
+          ]
+        },
+        "is_available": true,
+        "speed_kmph": 34.2,
+        "created_at": "2026-09-04T21:12:03Z"
+      },
+      "field_notes": {
+        "location": "GeoJSON Point. coordinates is [longitude, latitude] - longitude FIRST. Reversed pairs either fail validation when latitude exceeds 90 or, worse, index a valid but wrong point on the globe.",
+        "is_available": "bool. Workflow 3 filters on this inside its $geoNear query predicate, so it must be present on every ping.",
+        "created_at": "BSON Date. Carries the 7200-second TTL index; a string here would build the index fine and then never expire anything."
+      }
+    }
+  },
+  "indexes": {
+    "VehicleMetadata": [
+      {
+        "keys": {
+          "vehicle_id": 1
+        },
+        "options": {
+          "unique": true,
+          "name": "idx_vehicle_metadata_vehicle_id"
+        }
+      }
+    ],
+    "TripReviews": [
+      {
+        "keys": {
+          "city": 1,
+          "created_at": -1
+        },
+        "options": {
+          "name": "idx_reviews_city_created_at"
+        },
+        "why": "Backs the $match that precedes $facet in Workflow 4. Equality field first, range field second."
+      }
+    ],
+    "TelemetryPings": [
+      {
+        "keys": {
+          "location": "2dsphere"
+        },
+        "options": {
+          "name": "idx_pings_location_2dsphere"
+        },
+        "why": "Required by $geoNear in Workflow 3. Returns distances in metres."
+      },
+      {
+        "keys": {
+          "created_at": 1
+        },
+        "options": {
+          "name": "idx_pings_created_at_ttl",
+          "expireAfterSeconds": 7200
+        },
+        "why": "Raw telemetry is only useful live, so it self-deletes after two hours instead of growing without bound."
+      }
+    ]
+  }
+}
