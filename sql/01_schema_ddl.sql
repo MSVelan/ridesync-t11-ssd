@@ -37,7 +37,3 @@ CREATE TABLE trips (
         CHECK (fare_amount >= 0.00)
 );
 
-CREATE INDEX idx_trips_rider_id   ON trips (rider_id);
-CREATE INDEX idx_trips_vehicle_id ON trips (vehicle_id);
-CREATE INDEX idx_trips_created_at ON trips (created_at);
-
