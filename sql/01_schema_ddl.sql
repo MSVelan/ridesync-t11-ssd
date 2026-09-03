@@ -10,11 +10,11 @@ CREATE TABLE wallet_audit_logs (
     id              INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     rider_id        INT NOT NULL REFERENCES riders(id),
     amount_changed  DECIMAL(10,2) NOT NULL,
-    action_type     VARCHAR(10) NOT NULL
-    balance_after   DECIMAL(10,2) NOT NULL
-    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    action_type     VARCHAR(10) NOT NULL,
+    balance_after   DECIMAL(10,2) NOT NULL,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CHECK (action_type IN ('CREDIT', 'DEBIT')),
-    CHECK (balance_after >= 0.00),
+    CHECK (balance_after >= 0.00)
 );
 
 CREATE TABLE vehicles (
@@ -40,3 +40,4 @@ CREATE TABLE trips (
 CREATE INDEX idx_trips_rider_id   ON trips (rider_id);
 CREATE INDEX idx_trips_vehicle_id ON trips (vehicle_id);
 CREATE INDEX idx_trips_created_at ON trips (created_at);
+
