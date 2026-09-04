@@ -93,10 +93,10 @@ leading match the whole thing degenerates into a collection scan. Matching on
 `{city, created_at}` lets it ride `idx_reviews_city_created_at` instead:
 
 ```
-plan: IXSCAN  docsExamined=20243  nReturned=20243  collectionTotal=100000
+plan: IXSCAN  docsExamined=20239  nReturned=20239  collectionTotal=100000
 ```
 
-20,243 documents examined out of 100,000, and every one of them returned, so
+20,239 documents examined out of 100,000, and every one of them returned, so
 nothing was read and thrown away. Full `explain("executionStats")` output is
 in `performance/mongo_execution_stats.json`, regenerated with:
 
@@ -131,4 +131,6 @@ mongosh ridesync mongo/02_workflow3_geonear.js
   and the geospatial queries would look broken.
 - Validators are applied with `collMod` after seeding, so they govern new
   writes rather than the documents already loaded.
+- Workflow 4 execution stats were captured against the team's MongoDB Atlas
+  cluster, which holds the same seeded volumes as a local run.
 - Tested against MongoDB 8.0.

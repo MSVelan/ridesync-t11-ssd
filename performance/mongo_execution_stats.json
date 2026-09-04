@@ -522,10 +522,10 @@
     "ok": 1,
     "$clusterTime": {
       "clusterTime": {
-        "$timestamp": "7681689742089388042"
+        "$timestamp": "7681581367179608068"
       },
       "signature": {
-        "hash": "V6qDx0YlcQP2r+qanUf7F8ygbfk=",
+        "hash": "BybRGUvAolkakWqeAd5HjWoFAPo=",
         "keyId": {
           "high": 1775247835,
           "low": 3,
@@ -534,7 +534,7 @@
       }
     },
     "operationTime": {
-      "$timestamp": "7681689742089388042"
+      "$timestamp": "7681581367179608068"
     }
   },
   "workflow4_facet": {
@@ -543,7 +543,7 @@
       {
         "$cursor": {
           "queryPlanner": {
-            "namespace": "test.TripReviews",
+            "namespace": "ridesync.TripReviews",
             "parsedQuery": {
               "$and": [
                 {
@@ -553,7 +553,7 @@
                 },
                 {
                   "created_at": {
-                    "$gte": "2026-06-06T14:40:07.715Z"
+                    "$gte": "2026-06-06T14:35:02.008Z"
                   }
                 }
               ]
@@ -599,7 +599,7 @@
                       "[\"Hyderabad\", \"Hyderabad\"]"
                     ],
                     "created_at": [
-                      "[new Date(9223372036854775807), new Date(1780756807715)]"
+                      "[new Date(9223372036854775807), new Date(1780756502008)]"
                     ]
                   }
                 }
@@ -609,21 +609,21 @@
           },
           "executionStats": {
             "executionSuccess": true,
-            "nReturned": 0,
-            "executionTimeMillis": 1,
-            "totalKeysExamined": 0,
-            "totalDocsExamined": 0,
+            "nReturned": 20239,
+            "executionTimeMillis": 119,
+            "totalKeysExamined": 20239,
+            "totalDocsExamined": 20239,
             "executionStages": {
               "isCached": false,
               "stage": "PROJECTION_SIMPLE",
-              "nReturned": 0,
-              "executionTimeMillisEstimate": 1,
-              "works": 1,
-              "advanced": 0,
+              "nReturned": 20239,
+              "executionTimeMillisEstimate": 64,
+              "works": 20240,
+              "advanced": 20239,
               "needTime": 0,
               "needYield": 0,
-              "saveState": 1,
-              "restoreState": 1,
+              "saveState": 12,
+              "restoreState": 12,
               "isEOF": 1,
               "transformBy": {
                 "feedback_tags": 1,
@@ -632,27 +632,27 @@
               },
               "inputStage": {
                 "stage": "FETCH",
-                "nReturned": 0,
-                "executionTimeMillisEstimate": 1,
-                "works": 1,
-                "advanced": 0,
+                "nReturned": 20239,
+                "executionTimeMillisEstimate": 51,
+                "works": 20240,
+                "advanced": 20239,
                 "needTime": 0,
                 "needYield": 0,
-                "saveState": 1,
-                "restoreState": 1,
+                "saveState": 12,
+                "restoreState": 12,
                 "isEOF": 1,
-                "docsExamined": 0,
+                "docsExamined": 20239,
                 "alreadyHasObj": 0,
                 "inputStage": {
                   "stage": "IXSCAN",
-                  "nReturned": 0,
-                  "executionTimeMillisEstimate": 1,
-                  "works": 1,
-                  "advanced": 0,
+                  "nReturned": 20239,
+                  "executionTimeMillisEstimate": 15,
+                  "works": 20240,
+                  "advanced": 20239,
                   "needTime": 0,
                   "needYield": 0,
-                  "saveState": 1,
-                  "restoreState": 1,
+                  "saveState": 12,
+                  "restoreState": 12,
                   "isEOF": 1,
                   "keyPattern": {
                     "city": 1,
@@ -674,10 +674,10 @@
                       "[\"Hyderabad\", \"Hyderabad\"]"
                     ],
                     "created_at": [
-                      "[new Date(9223372036854775807), new Date(1780756807715)]"
+                      "[new Date(9223372036854775807), new Date(1780756502008)]"
                     ]
                   },
-                  "keysExamined": 0,
+                  "keysExamined": 20239,
                   "seeks": 1,
                   "dupsTested": 0,
                   "dupsDropped": 0
@@ -688,12 +688,12 @@
         },
         "nReturned": {
           "high": 0,
-          "low": 0,
+          "low": 20239,
           "unsigned": false
         },
         "executionTimeMillisEstimate": {
           "high": 0,
-          "low": 1,
+          "low": 65,
           "unsigned": false
         }
       },
@@ -704,12 +704,12 @@
               "$internalFacetTeeConsumer": {},
               "nReturned": {
                 "high": 0,
-                "low": 0,
+                "low": 20239,
                 "unsigned": false
               },
               "executionTimeMillisEstimate": {
                 "high": 0,
-                "low": 1,
+                "low": 67,
                 "unsigned": false
               }
             },
@@ -725,13 +725,13 @@
               "maxAccumulatorMemoryUsageBytes": {
                 "count": {
                   "high": 0,
-                  "low": 0,
+                  "low": 640,
                   "unsigned": false
                 }
               },
               "totalOutputDataSizeBytes": {
                 "high": 0,
-                "low": 0,
+                "low": 1225,
                 "unsigned": false
               },
               "usedDisk": false,
@@ -757,12 +757,12 @@
               },
               "nReturned": {
                 "high": 0,
-                "low": 0,
+                "low": 5,
                 "unsigned": false
               },
               "executionTimeMillisEstimate": {
                 "high": 0,
-                "low": 1,
+                "low": 77,
                 "unsigned": false
               }
             },
@@ -774,7 +774,7 @@
               },
               "totalDataSizeSortedBytesEstimate": {
                 "high": 0,
-                "low": 0,
+                "low": 1265,
                 "unsigned": false
               },
               "usedDisk": false,
@@ -790,12 +790,12 @@
               },
               "nReturned": {
                 "high": 0,
-                "low": 0,
+                "low": 5,
                 "unsigned": false
               },
               "executionTimeMillisEstimate": {
                 "high": 0,
-                "low": 1,
+                "low": 77,
                 "unsigned": false
               }
             },
@@ -807,12 +807,12 @@
               },
               "nReturned": {
                 "high": 0,
-                "low": 0,
+                "low": 5,
                 "unsigned": false
               },
               "executionTimeMillisEstimate": {
                 "high": 0,
-                "low": 1,
+                "low": 77,
                 "unsigned": false
               }
             }
@@ -822,7 +822,7 @@
               "$internalFacetTeeConsumer": {},
               "nReturned": {
                 "high": 0,
-                "low": 0,
+                "low": 20239,
                 "unsigned": false
               },
               "executionTimeMillisEstimate": {
@@ -837,12 +837,12 @@
               },
               "nReturned": {
                 "high": 0,
-                "low": 0,
+                "low": 40453,
                 "unsigned": false
               },
               "executionTimeMillisEstimate": {
                 "high": 0,
-                "low": 0,
+                "low": 17,
                 "unsigned": false
               }
             },
@@ -858,13 +858,13 @@
               "maxAccumulatorMemoryUsageBytes": {
                 "count": {
                   "high": 0,
-                  "low": 0,
+                  "low": 1664,
                   "unsigned": false
                 }
               },
               "totalOutputDataSizeBytes": {
                 "high": 0,
-                "low": 0,
+                "low": 3343,
                 "unsigned": false
               },
               "usedDisk": false,
@@ -890,12 +890,12 @@
               },
               "nReturned": {
                 "high": 0,
-                "low": 0,
+                "low": 13,
                 "unsigned": false
               },
               "executionTimeMillisEstimate": {
                 "high": 0,
-                "low": 0,
+                "low": 25,
                 "unsigned": false
               }
             },
@@ -912,7 +912,7 @@
               },
               "totalDataSizeSortedBytesEstimate": {
                 "high": 0,
-                "low": 0,
+                "low": 2650,
                 "unsigned": false
               },
               "usedDisk": false,
@@ -928,12 +928,12 @@
               },
               "nReturned": {
                 "high": 0,
-                "low": 0,
+                "low": 10,
                 "unsigned": false
               },
               "executionTimeMillisEstimate": {
                 "high": 0,
-                "low": 0,
+                "low": 25,
                 "unsigned": false
               }
             },
@@ -945,12 +945,12 @@
               },
               "nReturned": {
                 "high": 0,
-                "low": 0,
+                "low": 10,
                 "unsigned": false
               },
               "executionTimeMillisEstimate": {
                 "high": 0,
-                "low": 0,
+                "low": 25,
                 "unsigned": false
               }
             }
@@ -960,12 +960,12 @@
               "$internalFacetTeeConsumer": {},
               "nReturned": {
                 "high": 0,
-                "low": 0,
+                "low": 20239,
                 "unsigned": false
               },
               "executionTimeMillisEstimate": {
                 "high": 0,
-                "low": 0,
+                "low": 6,
                 "unsigned": false
               }
             },
@@ -986,18 +986,18 @@
               "maxAccumulatorMemoryUsageBytes": {
                 "averageRating": {
                   "high": 0,
-                  "low": 0,
+                  "low": 104,
                   "unsigned": false
                 },
                 "totalReviews": {
                   "high": 0,
-                  "low": 0,
+                  "low": 128,
                   "unsigned": false
                 }
               },
               "totalOutputDataSizeBytes": {
                 "high": 0,
-                "low": 0,
+                "low": 277,
                 "unsigned": false
               },
               "usedDisk": false,
@@ -1023,12 +1023,12 @@
               },
               "nReturned": {
                 "high": 0,
-                "low": 0,
+                "low": 1,
                 "unsigned": false
               },
               "executionTimeMillisEstimate": {
                 "high": 0,
-                "low": 0,
+                "low": 10,
                 "unsigned": false
               }
             },
@@ -1047,12 +1047,12 @@
               },
               "nReturned": {
                 "high": 0,
-                "low": 0,
+                "low": 1,
                 "unsigned": false
               },
               "executionTimeMillisEstimate": {
                 "high": 0,
-                "low": 0,
+                "low": 10,
                 "unsigned": false
               }
             }
@@ -1065,7 +1065,7 @@
         },
         "executionTimeMillisEstimate": {
           "high": 0,
-          "low": 1,
+          "low": 112,
           "unsigned": false
         }
       },
@@ -1118,12 +1118,12 @@
         },
         "executionTimeMillisEstimate": {
           "high": 0,
-          "low": 1,
+          "low": 112,
           "unsigned": false
         }
       }
     ],
-    "queryShapeHash": "670CD9D9EEAA43979843402DF8BACE52303AE880B5A5D5B39F022D8CD50DAFF1",
+    "queryShapeHash": "290CDACD2EE166E23435B0B28C6DBD6EEF28B7307E9D92C85C373C5C8695A79E",
     "serverInfo": {
       "host": "ac-fxb6gdz-shard-00-01.6rpofxj.mongodb.net",
       "port": 27017,
@@ -1149,7 +1149,7 @@
           "$match": {
             "city": "Hyderabad",
             "created_at": {
-              "$gte": "2026-06-06T14:40:07.715Z"
+              "$gte": "2026-06-06T14:35:02.008Z"
             }
           }
         },
@@ -1268,15 +1268,15 @@
         }
       ],
       "cursor": {},
-      "$db": "test"
+      "$db": "ridesync"
     },
     "ok": 1,
     "$clusterTime": {
       "clusterTime": {
-        "$timestamp": "7681689913888080170"
+        "$timestamp": "7681688603923054593"
       },
       "signature": {
-        "hash": "Zz5ov1CaFAnNdnp6wddGqN+s3gg=",
+        "hash": "R5xIx8AYC3gkHRR1PSdWkO+paxw=",
         "keyId": {
           "high": 1775247835,
           "low": 3,
@@ -1285,7 +1285,7 @@
       }
     },
     "operationTime": {
-      "$timestamp": "7681689913888080170"
+      "$timestamp": "7681688603923054593"
     }
   }
 }
