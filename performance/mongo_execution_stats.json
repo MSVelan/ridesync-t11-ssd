@@ -1,0 +1,515 @@
+{
+  "explainVersion": "1",
+  "stages": [
+    {
+      "$cursor": {
+        "queryPlanner": {
+          "namespace": "ridesync.TripReviews",
+          "parsedQuery": {
+            "$and": [
+              {
+                "city": {
+                  "$eq": "Hyderabad"
+                }
+              },
+              {
+                "created_at": {
+                  "$gte": {
+                    "$date": "2026-06-06T06:26:24.678Z"
+                  }
+                }
+              }
+            ]
+          },
+          "indexFilterSet": false,
+          "queryHash": "A2BDB576",
+          "planCacheShapeHash": "A2BDB576",
+          "planCacheKey": "18AA4E77",
+          "optimizationTimeMillis": 0,
+          "maxIndexedOrSolutionsReached": false,
+          "maxIndexedAndSolutionsReached": false,
+          "maxScansToExplodeReached": false,
+          "prunedSimilarIndexes": false,
+          "winningPlan": {
+            "isCached": false,
+            "stage": "PROJECTION_SIMPLE",
+            "transformBy": {
+              "feedback_tags": 1,
+              "rating": 1,
+              "_id": 0
+            },
+            "inputStage": {
+              "stage": "FETCH",
+              "inputStage": {
+                "stage": "IXSCAN",
+                "keyPattern": {
+                  "city": 1,
+                  "created_at": -1
+                },
+                "indexName": "idx_reviews_city_created_at",
+                "isMultiKey": false,
+                "multiKeyPaths": {
+                  "city": [],
+                  "created_at": []
+                },
+                "isUnique": false,
+                "isSparse": false,
+                "isPartial": false,
+                "indexVersion": 2,
+                "direction": "forward",
+                "indexBounds": {
+                  "city": [
+                    "[\"Hyderabad\", \"Hyderabad\"]"
+                  ],
+                  "created_at": [
+                    "[new Date(9223372036854775807), new Date(1780727184678)]"
+                  ]
+                }
+              }
+            }
+          },
+          "rejectedPlans": []
+        },
+        "executionStats": {
+          "executionSuccess": true,
+          "nReturned": 23887,
+          "executionTimeMillis": 71,
+          "totalKeysExamined": 23887,
+          "totalDocsExamined": 23887,
+          "executionStages": {
+            "isCached": false,
+            "stage": "PROJECTION_SIMPLE",
+            "nReturned": 23887,
+            "executionTimeMillisEstimate": 21,
+            "works": 23888,
+            "advanced": 23887,
+            "needTime": 0,
+            "needYield": 0,
+            "saveState": 11,
+            "restoreState": 11,
+            "isEOF": 1,
+            "transformBy": {
+              "feedback_tags": 1,
+              "rating": 1,
+              "_id": 0
+            },
+            "inputStage": {
+              "stage": "FETCH",
+              "nReturned": 23887,
+              "executionTimeMillisEstimate": 19,
+              "works": 23888,
+              "advanced": 23887,
+              "needTime": 0,
+              "needYield": 0,
+              "saveState": 11,
+              "restoreState": 11,
+              "isEOF": 1,
+              "docsExamined": 23887,
+              "alreadyHasObj": 0,
+              "inputStage": {
+                "stage": "IXSCAN",
+                "nReturned": 23887,
+                "executionTimeMillisEstimate": 10,
+                "works": 23888,
+                "advanced": 23887,
+                "needTime": 0,
+                "needYield": 0,
+                "saveState": 11,
+                "restoreState": 11,
+                "isEOF": 1,
+                "keyPattern": {
+                  "city": 1,
+                  "created_at": -1
+                },
+                "indexName": "idx_reviews_city_created_at",
+                "isMultiKey": false,
+                "multiKeyPaths": {
+                  "city": [],
+                  "created_at": []
+                },
+                "isUnique": false,
+                "isSparse": false,
+                "isPartial": false,
+                "indexVersion": 2,
+                "direction": "forward",
+                "indexBounds": {
+                  "city": [
+                    "[\"Hyderabad\", \"Hyderabad\"]"
+                  ],
+                  "created_at": [
+                    "[new Date(9223372036854775807), new Date(1780727184678)]"
+                  ]
+                },
+                "keysExamined": 23887,
+                "seeks": 1,
+                "dupsTested": 0,
+                "dupsDropped": 0
+              }
+            }
+          }
+        }
+      },
+      "nReturned": 23887,
+      "executionTimeMillisEstimate": 40
+    },
+    {
+      "$facet": {
+        "ratingDistribution": [
+          {
+            "$internalFacetTeeConsumer": {},
+            "nReturned": 23887,
+            "executionTimeMillisEstimate": 40
+          },
+          {
+            "$group": {
+              "_id": "$rating",
+              "count": {
+                "$sum": {
+                  "$const": 1
+                }
+              }
+            },
+            "maxAccumulatorMemoryUsageBytes": {
+              "count": 640
+            },
+            "totalOutputDataSizeBytes": 1225,
+            "usedDisk": false,
+            "spills": 0,
+            "spilledDataStorageSize": 0,
+            "numBytesSpilledEstimate": 0,
+            "spilledRecords": 0,
+            "nReturned": 5,
+            "executionTimeMillisEstimate": 40
+          },
+          {
+            "$sort": {
+              "sortKey": {
+                "_id": 1
+              }
+            },
+            "totalDataSizeSortedBytesEstimate": 1265,
+            "usedDisk": false,
+            "spills": 0,
+            "spilledDataStorageSize": 0,
+            "nReturned": 5,
+            "executionTimeMillisEstimate": 40
+          },
+          {
+            "$project": {
+              "count": true,
+              "rating": "$_id",
+              "_id": false
+            },
+            "nReturned": 5,
+            "executionTimeMillisEstimate": 40
+          }
+        ],
+        "topFeedbackTags": [
+          {
+            "$internalFacetTeeConsumer": {},
+            "nReturned": 23887,
+            "executionTimeMillisEstimate": 0
+          },
+          {
+            "$unwind": {
+              "path": "$feedback_tags"
+            },
+            "nReturned": 47854,
+            "executionTimeMillisEstimate": 0
+          },
+          {
+            "$group": {
+              "_id": "$feedback_tags",
+              "count": {
+                "$sum": {
+                  "$const": 1
+                }
+              }
+            },
+            "maxAccumulatorMemoryUsageBytes": {
+              "count": 1664
+            },
+            "totalOutputDataSizeBytes": 3343,
+            "usedDisk": false,
+            "spills": 0,
+            "spilledDataStorageSize": 0,
+            "numBytesSpilledEstimate": 0,
+            "spilledRecords": 0,
+            "nReturned": 13,
+            "executionTimeMillisEstimate": 20
+          },
+          {
+            "$sort": {
+              "sortKey": {
+                "count": -1
+              },
+              "limit": 10
+            },
+            "totalDataSizeSortedBytesEstimate": 2650,
+            "usedDisk": false,
+            "spills": 0,
+            "spilledDataStorageSize": 0,
+            "nReturned": 10,
+            "executionTimeMillisEstimate": 20
+          },
+          {
+            "$project": {
+              "count": true,
+              "tag": "$_id",
+              "_id": false
+            },
+            "nReturned": 10,
+            "executionTimeMillisEstimate": 20
+          }
+        ],
+        "overall": [
+          {
+            "$internalFacetTeeConsumer": {},
+            "nReturned": 23887,
+            "executionTimeMillisEstimate": 10
+          },
+          {
+            "$group": {
+              "_id": {
+                "$const": null
+              },
+              "averageRating": {
+                "$avg": "$rating"
+              },
+              "totalReviews": {
+                "$sum": {
+                  "$const": 1
+                }
+              }
+            },
+            "maxAccumulatorMemoryUsageBytes": {
+              "averageRating": 104,
+              "totalReviews": 128
+            },
+            "totalOutputDataSizeBytes": 277,
+            "usedDisk": false,
+            "spills": 0,
+            "spilledDataStorageSize": 0,
+            "numBytesSpilledEstimate": 0,
+            "spilledRecords": 0,
+            "nReturned": 1,
+            "executionTimeMillisEstimate": 10
+          },
+          {
+            "$project": {
+              "totalReviews": true,
+              "averageRating": {
+                "$round": [
+                  "$averageRating",
+                  {
+                    "$const": 2
+                  }
+                ]
+              },
+              "_id": false
+            },
+            "nReturned": 1,
+            "executionTimeMillisEstimate": 10
+          }
+        ]
+      },
+      "nReturned": 1,
+      "executionTimeMillisEstimate": 70
+    },
+    {
+      "$project": {
+        "_id": true,
+        "ratingDistribution": true,
+        "topFeedbackTags": true,
+        "city": {
+          "$const": "Hyderabad"
+        },
+        "windowDays": {
+          "$const": 90
+        },
+        "averageRating": {
+          "$ifNull": [
+            {
+              "$arrayElemAt": [
+                "$overall.averageRating",
+                {
+                  "$const": 0
+                }
+              ]
+            },
+            {
+              "$const": null
+            }
+          ]
+        },
+        "totalReviews": {
+          "$ifNull": [
+            {
+              "$arrayElemAt": [
+                "$overall.totalReviews",
+                {
+                  "$const": 0
+                }
+              ]
+            },
+            {
+              "$const": 0
+            }
+          ]
+        }
+      },
+      "nReturned": 1,
+      "executionTimeMillisEstimate": 70
+    }
+  ],
+  "queryShapeHash": "9FF49BB5C4CF638904ED3C6B5AA75FB28EEDC2669E80EAA39674140D2C426006",
+  "serverInfo": {
+    "host": "srinjoy-majumdar-IdeaPad",
+    "port": 27017,
+    "version": "8.0.29",
+    "gitVersion": "559d67c651f7393e62757234a0b25cb7a8622148"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": 104857600,
+    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": 104857600,
+    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+    "internalQueryMaxBlockingSortMemoryUsageBytes": 104857600,
+    "internalQueryProhibitBlockingMergeOnMongoS": 0,
+    "internalQueryMaxAddToSetBytes": 104857600,
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600,
+    "internalQueryFrameworkControl": "trySbeRestricted",
+    "internalQueryPlannerIgnoreIndexWithCollationForRegex": 1
+  },
+  "command": {
+    "aggregate": "TripReviews",
+    "pipeline": [
+      {
+        "$match": {
+          "city": "Hyderabad",
+          "created_at": {
+            "$gte": {
+              "$date": "2026-06-06T06:26:24.678Z"
+            }
+          }
+        }
+      },
+      {
+        "$facet": {
+          "ratingDistribution": [
+            {
+              "$group": {
+                "_id": "$rating",
+                "count": {
+                  "$sum": 1
+                }
+              }
+            },
+            {
+              "$sort": {
+                "_id": 1
+              }
+            },
+            {
+              "$project": {
+                "_id": 0,
+                "rating": "$_id",
+                "count": 1
+              }
+            }
+          ],
+          "topFeedbackTags": [
+            {
+              "$unwind": "$feedback_tags"
+            },
+            {
+              "$group": {
+                "_id": "$feedback_tags",
+                "count": {
+                  "$sum": 1
+                }
+              }
+            },
+            {
+              "$sort": {
+                "count": -1
+              }
+            },
+            {
+              "$limit": 10
+            },
+            {
+              "$project": {
+                "_id": 0,
+                "tag": "$_id",
+                "count": 1
+              }
+            }
+          ],
+          "overall": [
+            {
+              "$group": {
+                "_id": null,
+                "averageRating": {
+                  "$avg": "$rating"
+                },
+                "totalReviews": {
+                  "$sum": 1
+                }
+              }
+            },
+            {
+              "$project": {
+                "_id": 0,
+                "averageRating": {
+                  "$round": [
+                    "$averageRating",
+                    2
+                  ]
+                },
+                "totalReviews": 1
+              }
+            }
+          ]
+        }
+      },
+      {
+        "$project": {
+          "city": {
+            "$literal": "Hyderabad"
+          },
+          "windowDays": {
+            "$literal": 90
+          },
+          "ratingDistribution": 1,
+          "topFeedbackTags": 1,
+          "averageRating": {
+            "$ifNull": [
+              {
+                "$arrayElemAt": [
+                  "$overall.averageRating",
+                  0
+                ]
+              },
+              null
+            ]
+          },
+          "totalReviews": {
+            "$ifNull": [
+              {
+                "$arrayElemAt": [
+                  "$overall.totalReviews",
+                  0
+                ]
+              },
+              0
+            ]
+          }
+        }
+      }
+    ],
+    "cursor": {},
+    "$db": "ridesync"
+  },
+  "ok": 1
+}
