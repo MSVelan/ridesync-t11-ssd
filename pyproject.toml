@@ -8,5 +8,6 @@ dependencies = [
     "faker>=40.38.0",
     "graphviz>=0.21",
     "psycopg2-binary>=2.9.12",
+    "pymongo>=4.18.0",
     "tqdm>=4.70.0",
 ]
