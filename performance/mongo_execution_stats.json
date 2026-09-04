@@ -1527,7 +1527,7 @@
                       }
                     }
                   }
-                ]
+                }
               }
             },
             "rejectedPlans": []
@@ -3547,7 +3547,7 @@
                       "dupsDropped": 0
                     }
                   }
-                ]
+                }
               }
             }
           }
@@ -3667,7 +3667,7 @@
         },
         "totalDataSizeSortedBytesEstimate": {
           "high": 0,
-          "low": 4050,
+          "low": 0,
           "unsigned": false
         },
         "usedDisk": false,
@@ -3683,7 +3683,7 @@
         },
         "nReturned": {
           "high": 0,
-          "low": 5,
+          "low": 0,
           "unsigned": false
         },
         "executionTimeMillisEstimate": {
@@ -3711,7 +3711,7 @@
         },
         "nReturned": {
           "high": 0,
-          "low": 5,
+          "low": 0,
           "unsigned": false
         },
         "executionTimeMillisEstimate": {
@@ -3810,7 +3810,7 @@
         }
       ],
       "cursor": {},
-      "$db": "ridesync"
+      "$db": "test"
     },
     "ok": 1,
     "$clusterTime": {
@@ -3836,7 +3836,7 @@
       {
         "$cursor": {
           "queryPlanner": {
-            "namespace": "ridesync.TripReviews",
+            "namespace": "test.TripReviews",
             "parsedQuery": {
               "$and": [
                 {
@@ -4018,13 +4018,13 @@
               "maxAccumulatorMemoryUsageBytes": {
                 "count": {
                   "high": 0,
-                  "low": 640,
+                  "low": 0,
                   "unsigned": false
                 }
               },
               "totalOutputDataSizeBytes": {
                 "high": 0,
-                "low": 1225,
+                "low": 0,
                 "unsigned": false
               },
               "usedDisk": false,
@@ -4050,7 +4050,7 @@
               },
               "nReturned": {
                 "high": 0,
-                "low": 5,
+                "low": 0,
                 "unsigned": false
               },
               "executionTimeMillisEstimate": {
@@ -4067,7 +4067,7 @@
               },
               "totalDataSizeSortedBytesEstimate": {
                 "high": 0,
-                "low": 1265,
+                "low": 0,
                 "unsigned": false
               },
               "usedDisk": false,
@@ -4083,7 +4083,7 @@
               },
               "nReturned": {
                 "high": 0,
-                "low": 5,
+                "low": 0,
                 "unsigned": false
               },
               "executionTimeMillisEstimate": {
@@ -4100,7 +4100,7 @@
               },
               "nReturned": {
                 "high": 0,
-                "low": 5,
+                "low": 0,
                 "unsigned": false
               },
               "executionTimeMillisEstimate": {
@@ -4151,13 +4151,13 @@
               "maxAccumulatorMemoryUsageBytes": {
                 "count": {
                   "high": 0,
-                  "low": 1664,
+                  "low": 0,
                   "unsigned": false
                 }
               },
               "totalOutputDataSizeBytes": {
                 "high": 0,
-                "low": 3343,
+                "low": 0,
                 "unsigned": false
               },
               "usedDisk": false,
@@ -4183,7 +4183,7 @@
               },
               "nReturned": {
                 "high": 0,
-                "low": 13,
+                "low": 0,
                 "unsigned": false
               },
               "executionTimeMillisEstimate": {
@@ -4205,7 +4205,7 @@
               },
               "totalDataSizeSortedBytesEstimate": {
                 "high": 0,
-                "low": 2650,
+                "low": 0,
                 "unsigned": false
               },
               "usedDisk": false,
@@ -4221,7 +4221,7 @@
               },
               "nReturned": {
                 "high": 0,
-                "low": 10,
+                "low": 0,
                 "unsigned": false
               },
               "executionTimeMillisEstimate": {
@@ -4238,7 +4238,7 @@
               },
               "nReturned": {
                 "high": 0,
-                "low": 10,
+                "low": 0,
                 "unsigned": false
               },
               "executionTimeMillisEstimate": {
@@ -4279,18 +4279,18 @@
               "maxAccumulatorMemoryUsageBytes": {
                 "averageRating": {
                   "high": 0,
-                  "low": 104,
+                  "low": 0,
                   "unsigned": false
                 },
                 "totalReviews": {
                   "high": 0,
-                  "low": 128,
+                  "low": 0,
                   "unsigned": false
                 }
               },
               "totalOutputDataSizeBytes": {
                 "high": 0,
-                "low": 277,
+                "low": 0,
                 "unsigned": false
               },
               "usedDisk": false,
@@ -4316,7 +4316,7 @@
               },
               "nReturned": {
                 "high": 0,
-                "low": 1,
+                "low": 0,
                 "unsigned": false
               },
               "executionTimeMillisEstimate": {
@@ -4340,7 +4340,7 @@
               },
               "nReturned": {
                 "high": 0,
-                "low": 1,
+                "low": 0,
                 "unsigned": false
               },
               "executionTimeMillisEstimate": {
@@ -4561,7 +4561,7 @@
         }
       ],
       "cursor": {},
-      "$db": "ridesync"
+      "$db": "test"
     },
     "ok": 1,
     "$clusterTime": {
