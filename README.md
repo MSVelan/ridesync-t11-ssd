@@ -1,5 +1,3 @@
-Repository: https://github.com/MSVelan/ridesync-t11-ssd
-Final commit: 144b49559464c3fe14bb0ad9d401ca7cd735e641
 
 # RideSync — Team 11
 
@@ -77,6 +75,84 @@ Postgres.
 | TelemetryPings | `created_at` TTL 7200s | pings expire after two hours |
 | TripReviews | `{city: 1, created_at: -1}` | backs the `$match` ahead of `$facet` in Workflow 4 |
 
+
+## PostgreSQL Layer
+
+Four tables in `sql/01_schema_ddl.sql`. Fares and balances are `DECIMAL(10,2)`,
+never float. Trip status is `REQUESTED`, `IN TRANSIT` (space, not underscore),
+or `COMPLETED`.
+
+- **riders** — name and `wallet_balance` (`CHECK >= 0`).
+- **vehicles** — unique `license_plate`, `class`, `is_active`.
+- **trips** — FKs to rider and vehicle, quoted/charged `fare_amount`, status,
+  `created_at`. A trip row is only created once a vehicle is assigned
+  (`vehicle_id` is `NOT NULL`).
+- **wallet_audit_logs** — CREDIT/DEBIT ledger. Written by a trigger.
+
+
+### Running it
+
+Apply SQL in order, then seed:
+
+```bash
+set -a && source .env && set +a
+
+psql "$NEON_DSN" -f sql/01_schema_ddl.sql
+psql "$NEON_DSN" -f sql/02_indexes.sql
+psql "$NEON_DSN" -f sql/03_triggers_and_audit.sql
+psql "$NEON_DSN" -f sql/04_stored_procedures.sql
+psql "$NEON_DSN" -f sql/05_materialized_views.sql
+
+uv run data_generation/postgres_seeder.py --dsn "$NEON_DSN"
+```
+
+### Partial Indexing
+`sql/02_indexes.sql`
+We created partial indexes because they solves:
+
+1. **One open trip per rider** (`idx_active_rider_trip`). Unique on `rider_id`
+   only while status is `REQUESTED` or `IN TRANSIT`. Completed trips are left
+   out so a rider can have many finished trips, but never two at once.
+
+2. **Faster 7-day revenue** (`idx_trips_completed_vehicle_date`). Workflow 2
+   only reads completed trips. This index keeps `(vehicle_id, created_at)` and
+   `fare_amount` for those rows only, so the window query does not scan
+   requested / in-transit trips.
+
+3. `idx_trips_rider_id` — index on `trips(rider_id)` so “trips for this rider” does not scan the whole table (Postgres does not auto-index FKs).
+
+4. `idx_trips_vehicle_id` — same idea for `trips(vehicle_id)`: look up or join a vehicle’s trips without a full scan.
+
+
+
+### Workflow 2 — 7-day window analytics
+
+`sql/06_window_analytics.sql` is the Postgres workflow. Only `COMPLETED`
+trips count as revenue. It:
+
+1. Sums `fare_amount` per vehicle per day.
+2. Computes a 7-day moving average with
+   `AVG(...) OVER (PARTITION BY vehicle_id ORDER BY revenue_date
+   ROWS BETWEEN 6 PRECEDING AND CURRENT ROW)`.
+3. Two `DENSE_RANK()`: 1. best vehicle on each day, and 2. each
+   vehicle’s best days.
+
+```bash
+psql "$NEON_DSN" -f sql/06_window_analytics.sql
+```
+
+### Workflow 3 — Nearest Available Vehicle
+
+`mongo/02_workflow3_geonear.js` uses `$geoNear` against the 2dsphere index to
+find the closest available vehicles within a 5 km radius, returning distances
+in metres. Its `explain("executionStats")` output is appended to the same
+`performance/mongo_execution_stats.json`.
+
+```bash
+mongosh ridesync mongo/02_workflow3_geonear.js
+```
+
+
 ### Workflow 4 — Faceted Review Analytics
 
 `mongo/03_workflow4_facet.js` answers three questions in one pass over the
@@ -105,16 +181,6 @@ W4_EXPLAIN_ONLY=1 mongosh --quiet ridesync --file mongo/03_workflow4_facet.js \
     > performance/mongo_execution_stats.json
 ```
 
-### Workflow 3 — Nearest Available Vehicle
-
-`mongo/02_workflow3_geonear.js` uses `$geoNear` against the 2dsphere index to
-find the closest available vehicles within a 5 km radius, returning distances
-in metres. Its `explain("executionStats")` output is appended to the same
-`performance/mongo_execution_stats.json`.
-
-```bash
-mongosh ridesync mongo/02_workflow3_geonear.js
-```
 
 ### Assumptions
 
@@ -132,3 +198,6 @@ mongosh ridesync mongo/02_workflow3_geonear.js
 - Validators are applied with `collMod` after seeding, so they govern new
   writes rather than the documents already loaded.
 - Tested against MongoDB 8.0.
+- Only `Completed Trips` count as Revenue
+- The ammount is debited when the trip is requested.
+

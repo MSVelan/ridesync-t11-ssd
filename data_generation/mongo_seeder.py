@@ -10,7 +10,7 @@ import argparse
 import os
 import random
 from datetime import datetime, timedelta, timezone
-
+from tqdm import trange
 from faker import Faker
 from pymongo import MongoClient
 
@@ -44,7 +44,7 @@ def jitter(lat, lon, km=12.0):
 def seed_vehicle_metadata(db, vehicle_count, batch_size):
     docs, total = [], 0
 
-    for vehicle_id in range(1, vehicle_count + 1):
+    for vehicle_id in trange(1, vehicle_count + 1, desc="VehicleMetadata"):
         inspections = [
             {
                 "inspected_on": datetime.now(timezone.utc) - timedelta(days=random.randint(1, 900)),
@@ -95,7 +95,7 @@ def seed_trip_reviews(db, count, vehicle_count, rider_count, batch_size):
     now = datetime.now(timezone.utc)
     docs, total = [], 0
 
-    for trip_id in range(1, count + 1):
+    for trip_id in trange(1, count + 1, desc="TripReviews"):
         rating = random.choices([1, 2, 3, 4, 5], weights=[5, 7, 15, 33, 40])[0]
 
         if rating >= 4:
@@ -133,7 +133,7 @@ def seed_telemetry_pings(db, count, vehicle_count, batch_size, window_minutes):
     now = datetime.now(timezone.utc)
     docs, total = [], 0
 
-    for _ in range(count):
+    for _ in trange(count, desc="TelemetryPings"):
         lat, lon = jitter(*random.choice(city_points))
 
         docs.append({

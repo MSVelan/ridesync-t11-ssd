@@ -5,6 +5,7 @@ import psycopg2
 from faker import Faker
 from psycopg2.extras import execute_values
 from tqdm import trange, tqdm
+from datetime import timezone
 
 fake = Faker()
 Faker.seed(42)
@@ -131,6 +132,19 @@ def book_trips(cur, rider_ids, vehicle_ids, balances, count=100000):
         trip_id = next_trip_id
         next_trip_id += 1
 
+        booked_at = fake.date_time_between(
+            start_date="-30d", end_date="now", tzinfo=timezone.utc
+        )
+        status = random.choices(
+            ["REQUESTED", "IN TRANSIT", "COMPLETED"],
+            weights=[0.34, 0.33, 0.33],
+        )[0]
+        statements.append(cur.mogrify(
+            "UPDATE trips SET created_at = %s, status = %s WHERE id = %s",
+            (booked_at, status, trip_id),
+        ))
+        if status != "COMPLETED":
+            active_trip_id[rider_id] = trip_id
         status = random.choices(
             ["REQUESTED", "IN TRANSIT", "COMPLETED"],
             weights=[0.34, 0.33, 0.33],
