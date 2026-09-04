@@ -2,6 +2,8 @@ import argparse
 import random
 
 import psycopg2
+from psycopg2.extras import execute_batch
+
 from faker import Faker
 from psycopg2.extras import execute_values
 from tqdm import trange, tqdm
@@ -88,46 +90,50 @@ def insert_trips(cur, rider_ids, vehicle_ids, count=100000):
 
     return trips
 
-
-def simulate_wallet_activity(cur, rider_ids, trips):
-   
+def simulate_wallet_activity(cur, rider_ids, trips, batch_size=1000):
     cur.execute("SELECT id, wallet_balance FROM riders")
     balances = dict(cur.fetchall())
 
-    # 1. Random top-ups, independent of trips, so the ledger has CREDIT
-    #    entries beyond just "balance was topped up to cover a fare".
+    # 1. Top-ups
     topup_riders = random.sample(rider_ids, k=len(rider_ids) // 5)
-    for rider_id in tqdm(topup_riders, desc="Random top-ups"):
-        topup_amount = fake.pydecimal(min_value=50, max_value=2000, right_digits=2)
-        cur.execute(
-            "UPDATE riders SET wallet_balance = wallet_balance + %s WHERE id = %s",
-            (topup_amount, rider_id),
-        )
-        balances[rider_id] += topup_amount
+    topup_params = []
+    for rider_id in topup_riders:
+        amt = fake.pydecimal(min_value=50, max_value=2000, right_digits=2)
+        balances[rider_id] += amt
+        topup_params.append((amt, rider_id))
 
-    # 2. Trip-fare debits. Top up first if the balance can't cover the fare
-    #    (wallet_balance has a CHECK >= 0, so an under-funded debit would
-    #    fail the constraint outright).
+    execute_batch(
+        cur,
+        "UPDATE riders SET wallet_balance = wallet_balance + %s WHERE id = %s",
+        topup_params,
+        page_size=batch_size,
+    )
+
+    # 2. Trip-fare debits (with top-up-if-short logic preserved)
     completed_trips = [t for t in trips if t[3] == "COMPLETED"]
-    for rider_id, _vehicle_id, fare_amount, _status, _created_at in tqdm(
-        completed_trips, desc="Trip fare debits"
-    ):
+    debit_params = []
+    for rider_id, _vehicle_id, fare_amount, _status, _created_at in completed_trips:
         if balances[rider_id] < fare_amount:
             shortfall = fare_amount - balances[rider_id]
-            topup_amount = shortfall + fake.pydecimal(
-                min_value=10, max_value=200, right_digits=2
-            )
-            cur.execute(
+            topup_amount = shortfall + fake.pydecimal(min_value=10, max_value=200, right_digits=2)
+            execute_batch(
+                cur,
                 "UPDATE riders SET wallet_balance = wallet_balance + %s WHERE id = %s",
-                (topup_amount, rider_id),
+                [(topup_amount, rider_id)],
+                page_size=1,
             )
             balances[rider_id] += topup_amount
 
-        cur.execute(
-            "UPDATE riders SET wallet_balance = wallet_balance - %s WHERE id = %s",
-            (fare_amount, rider_id),
-        )
+        debit_params.append((fare_amount, rider_id))
         balances[rider_id] -= fare_amount
+
+    execute_batch(
+        cur,
+        "UPDATE riders SET wallet_balance = wallet_balance - %s WHERE id = %s",
+        debit_params,
+        page_size=batch_size,
+    )
+
 
 
 def main():
