@@ -10,4 +10,9 @@ WHERE status IN ('REQUESTED', 'IN TRANSIT');
 
 CREATE INDEX idx_trips_rider_id   ON trips (rider_id);
 CREATE INDEX idx_trips_vehicle_id ON trips (vehicle_id);
-CREATE INDEX idx_trips_created_at ON trips (created_at);
+
+CREATE INDEX idx_trips_completed_vehicle_date
+    ON trips (vehicle_id, created_at)
+    INCLUDE (fare_amount)
+    WHERE status = 'COMPLETED';
+
