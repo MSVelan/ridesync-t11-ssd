@@ -55,9 +55,7 @@ def insert_vehicles(cur, count=2000):
     cur.execute("SELECT id FROM vehicles ORDER BY id")
     return [row[0] for row in cur.fetchall()]
 
-
-def insert_trips(cur, rider_ids, vehicle_ids, count=100000):
-    
+def insert_trips(cur, rider_ids, vehicle_ids, conn, count=100000, batch_size=5000):
     trips = []
     in_progress = set()
 
@@ -78,15 +76,18 @@ def insert_trips(cur, rider_ids, vehicle_ids, count=100000):
             fake.date_time_between(start_date="-30d", end_date="now"),
         ))
 
-    execute_values(
-        cur,
-        """
-        INSERT INTO trips
-            (rider_id, vehicle_id, fare_amount, status, created_at)
-        VALUES %s
-        """,
-        trips,
-    )
+    for i in trange(0, len(trips), batch_size, desc="Inserting trips"):
+        chunk = trips[i:i + batch_size]
+        execute_values(
+            cur,
+            """
+            INSERT INTO trips (rider_id, vehicle_id, fare_amount, status, created_at)
+            VALUES %s
+            """,
+            chunk,
+            page_size=batch_size,   # send the whole chunk as one round trip
+        )
+        conn.commit()   # commit per chunk, so a later failure doesn't lose earlier progress
 
     return trips
 
@@ -154,7 +155,7 @@ def main():
         vehicle_ids = insert_vehicles(cur)
         conn.commit()
 
-        trips = insert_trips(cur, rider_ids, vehicle_ids)
+        trips = insert_trips(cur, rider_ids, vehicle_ids, conn)
         conn.commit()
 
         simulate_wallet_activity(cur, rider_ids, trips)
