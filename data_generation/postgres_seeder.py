@@ -91,49 +91,68 @@ def insert_trips(cur, rider_ids, vehicle_ids, conn, count=100000, batch_size=500
 
     return trips
 
-def simulate_wallet_activity(cur, rider_ids, trips, batch_size=1000):
+def simulate_wallet_activity(cur, conn, rider_ids, trips, batch_size=1000):
     cur.execute("SELECT id, wallet_balance FROM riders")
     balances = dict(cur.fetchall())
 
     # 1. Top-ups
     topup_riders = random.sample(rider_ids, k=len(rider_ids) // 5)
     topup_params = []
-    for rider_id in topup_riders:
+    for rider_id in tqdm(topup_riders, desc="Computing top-ups"):
         amt = fake.pydecimal(min_value=50, max_value=2000, right_digits=2)
         balances[rider_id] += amt
         topup_params.append((amt, rider_id))
 
-    execute_batch(
-        cur,
-        "UPDATE riders SET wallet_balance = wallet_balance + %s WHERE id = %s",
-        topup_params,
-        page_size=batch_size,
-    )
+    for i in trange(0, len(topup_params), batch_size, desc="Applying top-ups"):
+        chunk = topup_params[i:i + batch_size]
+        execute_batch(
+            cur,
+            "UPDATE riders SET wallet_balance = wallet_balance + %s WHERE id = %s",
+            chunk,
+            page_size=batch_size,
+        )
+        conn.commit()
 
-    # 2. Trip-fare debits (with top-up-if-short logic preserved)
+    # 2. Trip-fare debits (with top-up-if-short logic preserved, batched --
+    #    no per-row execute_batch calls inside this loop anymore)
     completed_trips = [t for t in trips if t[3] == "COMPLETED"]
+    shortfall_params = []
     debit_params = []
-    for rider_id, _vehicle_id, fare_amount, _status, _created_at in completed_trips:
+    for rider_id, _vehicle_id, fare_amount, _status, _created_at in tqdm(
+        completed_trips, desc="Computing debits"
+    ):
         if balances[rider_id] < fare_amount:
             shortfall = fare_amount - balances[rider_id]
-            topup_amount = shortfall + fake.pydecimal(min_value=10, max_value=200, right_digits=2)
-            execute_batch(
-                cur,
-                "UPDATE riders SET wallet_balance = wallet_balance + %s WHERE id = %s",
-                [(topup_amount, rider_id)],
-                page_size=1,
+            topup_amount = shortfall + fake.pydecimal(
+                min_value=10, max_value=200, right_digits=2
             )
             balances[rider_id] += topup_amount
+            shortfall_params.append((topup_amount, rider_id))
 
         debit_params.append((fare_amount, rider_id))
         balances[rider_id] -= fare_amount
 
-    execute_batch(
-        cur,
-        "UPDATE riders SET wallet_balance = wallet_balance - %s WHERE id = %s",
-        debit_params,
-        page_size=batch_size,
-    )
+    # apply shortfall top-ups BEFORE debits -- guarantees no debit ever
+    # pushes a balance negative and trips the CHECK constraint
+    for i in trange(0, len(shortfall_params), batch_size, desc="Applying shortfall top-ups"):
+        chunk = shortfall_params[i:i + batch_size]
+        execute_batch(
+            cur,
+            "UPDATE riders SET wallet_balance = wallet_balance + %s WHERE id = %s",
+            chunk,
+            page_size=batch_size,
+        )
+        conn.commit()
+
+    for i in trange(0, len(debit_params), batch_size, desc="Applying debits"):
+        chunk = debit_params[i:i + batch_size]
+        execute_batch(
+            cur,
+            "UPDATE riders SET wallet_balance = wallet_balance - %s WHERE id = %s",
+            chunk,
+            page_size=batch_size,
+        )
+        conn.commit()
 
 
 
@@ -158,7 +177,7 @@ def main():
         trips = insert_trips(cur, rider_ids, vehicle_ids, conn)
         conn.commit()
 
-        simulate_wallet_activity(cur, rider_ids, trips)
+        simulate_wallet_activity(cur, conn, rider_ids, trips)
         conn.commit()
     finally:
         conn.close()
