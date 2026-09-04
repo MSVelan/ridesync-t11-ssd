@@ -1,3 +1,6 @@
+Repository: https://github.com/MSVelan/ridesync-t11-ssd
+Final commit: 144b49559464c3fe14bb0ad9d401ca7cd735e641
+
 # RideSync — Team 11
 
 CS6.302 Software Systems Development, Assignment 1.
