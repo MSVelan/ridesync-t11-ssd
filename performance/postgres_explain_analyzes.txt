@@ -1,0 +1,45 @@
+                                                                                 QUERY PLAN                                                                                 
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Incremental Sort  (cost=4515.23..4617.06 rows=2000 width=88) (actual time=74.794..76.267 rows=2000.00 loops=1)
+   Sort Key: moving_avg.vehicle_id, moving_avg.revenue_date
+   Presorted Key: moving_avg.vehicle_id
+   Full-sort Groups: 63  Sort Method: quicksort  Average Memory: 26kB  Peak Memory: 26kB
+   Buffers: shared hit=1894
+   ->  WindowAgg  (cost=4514.86..4554.84 rows=2000 width=88) (actual time=74.722..75.543 rows=2000.00 loops=1)
+         Window: w2 AS (PARTITION BY moving_avg.vehicle_id ORDER BY moving_avg.moving_avg_7d ROWS UNBOUNDED PRECEDING)
+         Storage: Memory  Maximum Storage: 17kB
+         Buffers: shared hit=1891
+         ->  Sort  (cost=4514.84..4519.84 rows=2000 width=80) (actual time=74.718..74.828 rows=2000.00 loops=1)
+               Sort Key: moving_avg.vehicle_id, moving_avg.moving_avg_7d DESC
+               Sort Method: quicksort  Memory: 158kB
+               Buffers: shared hit=1891
+               ->  WindowAgg  (cost=4365.21..4405.19 rows=2000 width=80) (actual time=72.535..73.911 rows=2000.00 loops=1)
+                     Window: w1 AS (PARTITION BY moving_avg.revenue_date ORDER BY moving_avg.moving_avg_7d ROWS UNBOUNDED PRECEDING)
+                     Storage: Memory  Maximum Storage: 17kB
+                     Buffers: shared hit=1888
+                     ->  Sort  (cost=4365.19..4370.19 rows=2000 width=72) (actual time=72.531..72.643 rows=2000.00 loops=1)
+                           Sort Key: moving_avg.revenue_date, moving_avg.moving_avg_7d DESC
+                           Sort Method: quicksort  Memory: 142kB
+                           Buffers: shared hit=1888
+                           ->  Subquery Scan on moving_avg  (cost=4210.55..4255.53 rows=2000 width=72) (actual time=65.294..67.867 rows=2000.00 loops=1)
+                                 Buffers: shared hit=1888
+                                 ->  WindowAgg  (cost=4210.55..4255.53 rows=2000 width=72) (actual time=65.292..67.651 rows=2000.00 loops=1)
+                                       Window: w1 AS (PARTITION BY trips.vehicle_id ORDER BY ((trips.created_at)::date) ROWS BETWEEN '6'::bigint PRECEDING AND CURRENT ROW)
+                                       Storage: Memory  Maximum Storage: 17kB
+                                       Buffers: shared hit=1888
+                                       ->  Sort  (cost=4210.53..4215.53 rows=2000 width=40) (actual time=65.267..65.390 rows=2000.00 loops=1)
+                                             Sort Key: trips.vehicle_id, ((trips.created_at)::date)
+                                             Sort Method: quicksort  Memory: 126kB
+                                             Buffers: shared hit=1888
+                                             ->  HashAggregate  (cost=4070.87..4100.87 rows=2000 width=40) (actual time=64.046..64.645 rows=2000.00 loops=1)
+                                                   Group Key: trips.vehicle_id, (trips.created_at)::date
+                                                   Batches: 1  Memory Usage: 977kB
+                                                   Buffers: shared hit=1888
+                                                   ->  Seq Scan on trips  (cost=0.00..3371.22 rows=93287 width=14) (actual time=0.024..32.738 rows=93335.00 loops=1)
+                                                         Filter: ((status)::text = 'COMPLETED'::text)
+                                                         Rows Removed by Filter: 6665
+                                                         Buffers: shared hit=1888
+ Planning:
+   Buffers: shared hit=175 read=1 dirtied=3
+ Planning Time: 2.793 ms
+ Execution Time: 76.782 ms
