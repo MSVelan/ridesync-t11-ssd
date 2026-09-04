@@ -19,7 +19,7 @@ const pipeline = [
       ratingDistribution: [
         { $group: { _id: "$rating", count: { $sum: 1 } } },
         { $sort: { _id: 1 } },
-        { $project: { _id: 0, rating: "$_id", count: 1 } }
+        { $project: { _id: 0, rating: "$_id", count: 1 } },
       ],
 
       topFeedbackTags: [
@@ -27,7 +27,7 @@ const pipeline = [
         { $group: { _id: "$feedback_tags", count: { $sum: 1 } } },
         { $sort: { count: -1 } },
         { $limit: 10 },
-        { $project: { _id: 0, tag: "$_id", count: 1 } }
+        { $project: { _id: 0, tag: "$_id", count: 1 } },
       ],
 
       overall: [
@@ -35,18 +35,18 @@ const pipeline = [
           $group: {
             _id: null,
             averageRating: { $avg: "$rating" },
-            totalReviews: { $sum: 1 }
-          }
+            totalReviews: { $sum: 1 },
+          },
         },
         {
           $project: {
             _id: 0,
             averageRating: { $round: ["$averageRating", 2] },
-            totalReviews: 1
-          }
-        }
-      ]
-    }
+            totalReviews: 1,
+          },
+        },
+      ],
+    },
   },
 
   {
@@ -55,30 +55,44 @@ const pipeline = [
       windowDays: { $literal: WINDOW_DAYS },
       ratingDistribution: 1,
       topFeedbackTags: 1,
-      averageRating: { $ifNull: [{ $arrayElemAt: ["$overall.averageRating", 0] }, null] },
-      totalReviews: { $ifNull: [{ $arrayElemAt: ["$overall.totalReviews", 0] }, 0] }
-    }
-  }
+      averageRating: {
+        $ifNull: [{ $arrayElemAt: ["$overall.averageRating", 0] }, null],
+      },
+      totalReviews: {
+        $ifNull: [{ $arrayElemAt: ["$overall.totalReviews", 0] }, 0],
+      },
+    },
+  },
 ];
+const stats = db.TripReviews.explain("executionStats").aggregate(pipeline);
 
-const explainOnly =
-  typeof process !== "undefined" && process.env && process.env.W4_EXPLAIN_ONLY;
-
-if (explainOnly) {
-  print(EJSON.stringify(db.TripReviews.explain("executionStats").aggregate(pipeline), null, 2));
-} else {
-  print("=== Workflow 4: review analytics for " + CITY + " (last " + WINDOW_DAYS + " days) ===");
-  printjson(db.TripReviews.aggregate(pipeline).toArray());
-
-  const stats = db.TripReviews.explain("executionStats").aggregate(pipeline);
-  const cursor = stats.stages ? stats.stages[0]["$cursor"] : null;
-
-  if (cursor) {
-    const plan = JSON.stringify(cursor.queryPlanner.winningPlan);
-    const scan = plan.indexOf("IXSCAN") >= 0 ? "IXSCAN" : "COLLSCAN";
-    print("\nplan: " + scan +
-          "  docsExamined=" + cursor.executionStats.totalDocsExamined +
-          "  nReturned=" + cursor.executionStats.nReturned +
-          "  collectionTotal=" + db.TripReviews.countDocuments({}));
-  }
+// Quick console sanity check before digging through the full JSON file. Only
+// the leading $match is index-eligible ($facet sub-pipelines run in-memory,
+// unindexed), so this cursor stage is the one that actually matters here.
+const cursorStage = stats.stages ? stats.stages[0]["$cursor"] : null;
+if (cursorStage) {
+  const winningPlanStr = JSON.stringify(cursorStage.queryPlanner.winningPlan);
+  const scanType =
+    winningPlanStr.indexOf("IXSCAN") >= 0 ? "IXSCAN" : "COLLSCAN";
+  print(
+    "\nplan: " +
+      scanType +
+      "  docsExamined=" +
+      cursorStage.executionStats.totalDocsExamined +
+      "  nReturned=" +
+      cursorStage.executionStats.nReturned +
+      "  collectionTotal=" +
+      db.TripReviews.countDocuments({}),
+  );
 }
+
+const OUTPUT_PATH = "performance/mongo_execution_stats.json"; // relative to repo root — run mongosh from there
+let existingStats = {};
+try {
+  existingStats = JSON.parse(fs.readFileSync(OUTPUT_PATH, "utf8"));
+} catch (e) {
+  // file doesn't exist yet, or isn't valid JSON — start fresh
+}
+existingStats.workflow4_facet = stats;
+fs.writeFileSync(OUTPUT_PATH, JSON.stringify(existingStats, null, 2));
+print("\nWrote Workflow 4 explain(executionStats) to " + OUTPUT_PATH);

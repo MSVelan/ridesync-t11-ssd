@@ -1,497 +1,1098 @@
 {
-  "explainVersion": "1",
-  "stages": [
-    {
-      "$cursor": {
-        "queryPlanner": {
-          "namespace": "ridesync.TripReviews",
-          "parsedQuery": {
-            "$and": [
-              {
-                "city": {
-                  "$eq": "Hyderabad"
-                }
-              },
-              {
-                "created_at": {
-                  "$gte": {
-                    "$date": "2026-06-06T06:26:24.678Z"
+  "workflow3_geonear": {
+    "explainVersion": "1",
+    "stages": [
+      {
+        "$geoNearCursor": {
+          "queryPlanner": {
+            "namespace": "6a99b5b8e5cd97f20019d2f3_test.TelemetryPings",
+            "parsedQuery": {
+              "$and": [
+                {
+                  "is_available": {
+                    "$eq": true
+                  }
+                },
+                {
+                  "location": {
+                    "$nearSphere": {
+                      "type": "Point",
+                      "coordinates": [
+                        78.4867,
+                        17.385
+                      ]
+                    },
+                    "$maxDistance": 5000
                   }
                 }
+              ]
+            },
+            "indexFilterSet": false,
+            "queryHash": "9E2A19B0",
+            "planCacheShapeHash": "9E2A19B0",
+            "planCacheKey": "652A29E0",
+            "optimizationTimeMillis": 0,
+            "maxIndexedOrSolutionsReached": false,
+            "maxIndexedAndSolutionsReached": false,
+            "maxScansToExplodeReached": false,
+            "prunedSimilarIndexes": false,
+            "winningPlan": {
+              "isCached": false,
+              "stage": "FETCH",
+              "filter": {
+                "is_available": {
+                  "$eq": true
+                }
+              },
+              "inputStage": {
+                "stage": "GEO_NEAR_2DSPHERE",
+                "keyPattern": {
+                  "location": "2dsphere"
+                },
+                "indexName": "idx_pings_location_2dsphere",
+                "indexVersion": 2,
+                "inputStage": {
+                  "stage": "FETCH",
+                  "inputStage": {
+                    "stage": "IXSCAN",
+                    "keyPattern": {
+                      "location": "2dsphere"
+                    },
+                    "indexName": "idx_pings_location_2dsphere",
+                    "isMultiKey": false,
+                    "multiKeyPaths": {
+                      "location": []
+                    },
+                    "isUnique": false,
+                    "isSparse": false,
+                    "isPartial": false,
+                    "indexVersion": 2,
+                    "direction": "forward",
+                    "indexBounds": {
+                      "location": [
+                        "[4251398048237748224, 4251398048237748224]",
+                        "[4305441243766194176, 4305441243766194176]",
+                        "[4308537468510011392, 4308537468510011392]",
+                        "[4308695798184411136, 4308695798184411136]",
+                        "[4308696528328851457, 4308696536918786047]",
+                        "[4308696536918786048, 4308696536918786048]",
+                        "[4308696554098655232, 4308696554098655232]",
+                        "[4308696622818131968, 4308696622818131968]",
+                        "[4308696897696038912, 4308696897696038912]",
+                        "[4308700196230922240, 4308700196230922240]",
+                        "[4308703494765805568, 4308703494765805568]",
+                        "[4308703494765805569, 4308704044521619455]",
+                        "[4308704044521619457, 4308704181960572927]",
+                        "[4308704181960572929, 4308704319399526399]",
+                        "[4308704319399526400, 4308704319399526400]",
+                        "[4308704319399526401, 4308704321547010047]",
+                        "[4308704323694493696, 4308704323694493696]",
+                        "[4308704336579395584, 4308704336579395584]",
+                        "[4308704388119003136, 4308704388119003136]",
+                        "[4308704456838479873, 4308704594277433343]",
+                        "[4308704594277433345, 4308705144033247231]",
+                        "[4308705178392985601, 4308705212752723967]",
+                        "[4308705212752723968, 4308705212752723968]",
+                        "[4308705418911154176, 4308705418911154176]",
+                        "[4308705556350107649, 4308705693789061119]",
+                        "[4308705693789061120, 4308705693789061120]",
+                        "[4308705693789061121, 4308705831228014591]",
+                        "[4308705968666968064, 4308705968666968064]",
+                        "[4308706174825398272, 4308706174825398272]",
+                        "[4308706174825398273, 4308706209185136639]",
+                        "[4308706243544875009, 4308706793300688895]",
+                        "[4308706793300688897, 4308706827660427263]",
+                        "[4308706862020165632, 4308706862020165632]",
+                        "[4308706896379904001, 4308706930739642367]",
+                        "[4308707068178595840, 4308707068178595840]",
+                        "[4308707892812316672, 4308707892812316672]",
+                        "[4308708992323944448, 4308708992323944448]",
+                        "[4308748574742544384, 4308748574742544384]",
+                        "[4308818943486722048, 4308818943486722048]",
+                        "[4309944843393564672, 4309944843393564672]"
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "rejectedPlans": []
+          },
+          "executionStats": {
+            "executionSuccess": true,
+            "nReturned": 0,
+            "executionTimeMillis": 0,
+            "totalKeysExamined": 0,
+            "totalDocsExamined": 0,
+            "executionStages": {
+              "isCached": false,
+              "stage": "FETCH",
+              "filter": {
+                "is_available": {
+                  "$eq": true
+                }
+              },
+              "nReturned": 0,
+              "executionTimeMillisEstimate": 0,
+              "works": 18,
+              "advanced": 0,
+              "needTime": 17,
+              "needYield": 0,
+              "saveState": 1,
+              "restoreState": 1,
+              "isEOF": 1,
+              "docsExamined": 0,
+              "alreadyHasObj": 0,
+              "inputStage": {
+                "stage": "GEO_NEAR_2DSPHERE",
+                "nReturned": 0,
+                "executionTimeMillisEstimate": 0,
+                "works": 18,
+                "advanced": 0,
+                "needTime": 17,
+                "needYield": 0,
+                "saveState": 1,
+                "restoreState": 1,
+                "isEOF": 1,
+                "keyPattern": {
+                  "location": "2dsphere"
+                },
+                "indexName": "idx_pings_location_2dsphere",
+                "indexVersion": 2,
+                "searchIntervals": [
+                  {
+                    "minDistance": 0,
+                    "maxDistance": 5000,
+                    "maxInclusive": true,
+                    "nBuffered": 0,
+                    "nReturned": 0
+                  }
+                ],
+                "inputStage": {
+                  "stage": "FETCH",
+                  "nReturned": 0,
+                  "executionTimeMillisEstimate": 0,
+                  "works": 1,
+                  "advanced": 0,
+                  "needTime": 0,
+                  "needYield": 0,
+                  "saveState": 0,
+                  "restoreState": 0,
+                  "isEOF": 1,
+                  "docsExamined": 0,
+                  "alreadyHasObj": 0,
+                  "inputStage": {
+                    "stage": "IXSCAN",
+                    "nReturned": 0,
+                    "executionTimeMillisEstimate": 0,
+                    "works": 1,
+                    "advanced": 0,
+                    "needTime": 0,
+                    "needYield": 0,
+                    "saveState": 0,
+                    "restoreState": 0,
+                    "isEOF": 1,
+                    "keyPattern": {
+                      "location": "2dsphere"
+                    },
+                    "indexName": "idx_pings_location_2dsphere",
+                    "isMultiKey": false,
+                    "multiKeyPaths": {
+                      "location": []
+                    },
+                    "isUnique": false,
+                    "isSparse": false,
+                    "isPartial": false,
+                    "indexVersion": 2,
+                    "direction": "forward",
+                    "indexBounds": {
+                      "location": [
+                        "[4251398048237748224, 4251398048237748224]",
+                        "[4305441243766194176, 4305441243766194176]",
+                        "[4308537468510011392, 4308537468510011392]",
+                        "[4308695798184411136, 4308695798184411136]",
+                        "[4308696528328851457, 4308696536918786047]",
+                        "[4308696536918786048, 4308696536918786048]",
+                        "[4308696554098655232, 4308696554098655232]",
+                        "[4308696622818131968, 4308696622818131968]",
+                        "[4308696897696038912, 4308696897696038912]",
+                        "[4308700196230922240, 4308700196230922240]",
+                        "[4308703494765805568, 4308703494765805568]",
+                        "[4308703494765805569, 4308704044521619455]",
+                        "[4308704044521619457, 4308704181960572927]",
+                        "[4308704181960572929, 4308704319399526399]",
+                        "[4308704319399526400, 4308704319399526400]",
+                        "[4308704319399526401, 4308704321547010047]",
+                        "[4308704323694493696, 4308704323694493696]",
+                        "[4308704336579395584, 4308704336579395584]",
+                        "[4308704388119003136, 4308704388119003136]",
+                        "[4308704456838479873, 4308704594277433343]",
+                        "[4308704594277433345, 4308705144033247231]",
+                        "[4308705178392985601, 4308705212752723967]",
+                        "[4308705212752723968, 4308705212752723968]",
+                        "[4308705418911154176, 4308705418911154176]",
+                        "[4308705556350107649, 4308705693789061119]",
+                        "[4308705693789061120, 4308705693789061120]",
+                        "[4308705693789061121, 4308705831228014591]",
+                        "[4308705968666968064, 4308705968666968064]",
+                        "[4308706174825398272, 4308706174825398272]",
+                        "[4308706174825398273, 4308706209185136639]",
+                        "[4308706243544875009, 4308706793300688895]",
+                        "[4308706793300688897, 4308706827660427263]",
+                        "[4308706862020165632, 4308706862020165632]",
+                        "[4308706896379904001, 4308706930739642367]",
+                        "[4308707068178595840, 4308707068178595840]",
+                        "[4308707892812316672, 4308707892812316672]",
+                        "[4308708992323944448, 4308708992323944448]",
+                        "[4308748574742544384, 4308748574742544384]",
+                        "[4308818943486722048, 4308818943486722048]",
+                        "[4309944843393564672, 4309944843393564672]"
+                      ]
+                    },
+                    "keysExamined": 0,
+                    "seeks": 1,
+                    "dupsTested": 0,
+                    "dupsDropped": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "nReturned": {
+          "high": 0,
+          "low": 0,
+          "unsigned": false
+        },
+        "executionTimeMillisEstimate": {
+          "high": 0,
+          "low": 0,
+          "unsigned": false
+        }
+      },
+      {
+        "$group": {
+          "_id": "$vehicle_id",
+          "vehicle_id": {
+            "$first": "$vehicle_id"
+          },
+          "distance_m": {
+            "$first": "$distance_m"
+          },
+          "location": {
+            "$first": "$location"
+          },
+          "driver_id": {
+            "$first": "$driver_id"
+          },
+          "speed_kmph": {
+            "$first": "$speed_kmph"
+          },
+          "created_at": {
+            "$first": "$created_at"
+          }
+        },
+        "maxAccumulatorMemoryUsageBytes": {
+          "vehicle_id": {
+            "high": 0,
+            "low": 0,
+            "unsigned": false
+          },
+          "distance_m": {
+            "high": 0,
+            "low": 0,
+            "unsigned": false
+          },
+          "location": {
+            "high": 0,
+            "low": 0,
+            "unsigned": false
+          },
+          "driver_id": {
+            "high": 0,
+            "low": 0,
+            "unsigned": false
+          },
+          "speed_kmph": {
+            "high": 0,
+            "low": 0,
+            "unsigned": false
+          },
+          "created_at": {
+            "high": 0,
+            "low": 0,
+            "unsigned": false
+          }
+        },
+        "totalOutputDataSizeBytes": {
+          "high": 0,
+          "low": 0,
+          "unsigned": false
+        },
+        "usedDisk": false,
+        "spills": {
+          "high": 0,
+          "low": 0,
+          "unsigned": false
+        },
+        "spilledDataStorageSize": {
+          "high": 0,
+          "low": 0,
+          "unsigned": false
+        },
+        "numBytesSpilledEstimate": {
+          "high": 0,
+          "low": 0,
+          "unsigned": false
+        },
+        "spilledRecords": {
+          "high": 0,
+          "low": 0,
+          "unsigned": false
+        },
+        "nReturned": {
+          "high": 0,
+          "low": 0,
+          "unsigned": false
+        },
+        "executionTimeMillisEstimate": {
+          "high": 0,
+          "low": 0,
+          "unsigned": false
+        }
+      },
+      {
+        "$sort": {
+          "sortKey": {
+            "distance_m": 1
+          },
+          "limit": {
+            "high": 0,
+            "low": 5,
+            "unsigned": false
+          }
+        },
+        "totalDataSizeSortedBytesEstimate": {
+          "high": 0,
+          "low": 0,
+          "unsigned": false
+        },
+        "usedDisk": false,
+        "spills": {
+          "high": 0,
+          "low": 0,
+          "unsigned": false
+        },
+        "spilledDataStorageSize": {
+          "high": 0,
+          "low": 0,
+          "unsigned": false
+        },
+        "nReturned": {
+          "high": 0,
+          "low": 0,
+          "unsigned": false
+        },
+        "executionTimeMillisEstimate": {
+          "high": 0,
+          "low": 0,
+          "unsigned": false
+        }
+      },
+      {
+        "$project": {
+          "vehicle_id": true,
+          "location": true,
+          "driver_id": true,
+          "speed_kmph": true,
+          "created_at": true,
+          "distance_m": {
+            "$round": [
+              "$distance_m",
+              {
+                "$const": 1
               }
             ]
           },
-          "indexFilterSet": false,
-          "queryHash": "A2BDB576",
-          "planCacheShapeHash": "A2BDB576",
-          "planCacheKey": "18AA4E77",
-          "optimizationTimeMillis": 0,
-          "maxIndexedOrSolutionsReached": false,
-          "maxIndexedAndSolutionsReached": false,
-          "maxScansToExplodeReached": false,
-          "prunedSimilarIndexes": false,
-          "winningPlan": {
-            "isCached": false,
-            "stage": "PROJECTION_SIMPLE",
-            "transformBy": {
-              "feedback_tags": 1,
-              "rating": 1,
-              "_id": 0
+          "_id": false
+        },
+        "nReturned": {
+          "high": 0,
+          "low": 0,
+          "unsigned": false
+        },
+        "executionTimeMillisEstimate": {
+          "high": 0,
+          "low": 0,
+          "unsigned": false
+        }
+      }
+    ],
+    "queryShapeHash": "5C22AFF759ECAAF8686E3EACC870D82060930F256A0D941A33686C321864C79F",
+    "serverInfo": {
+      "host": "ac-fxb6gdz-shard-00-01.6rpofxj.mongodb.net",
+      "port": 27017,
+      "version": "8.0.30",
+      "gitVersion": "360770fbc9b6a893748150d2ab2799e119b9fac9"
+    },
+    "serverParameters": {
+      "internalQueryFacetBufferSizeBytes": 104857600,
+      "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+      "internalLookupStageIntermediateDocumentMaxSizeBytes": 16793600,
+      "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+      "internalQueryMaxBlockingSortMemoryUsageBytes": 33554432,
+      "internalQueryProhibitBlockingMergeOnMongoS": 0,
+      "internalQueryMaxAddToSetBytes": 104857600,
+      "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600,
+      "internalQueryFrameworkControl": "trySbeRestricted",
+      "internalQueryPlannerIgnoreIndexWithCollationForRegex": 1
+    },
+    "command": {
+      "aggregate": "TelemetryPings",
+      "pipeline": [
+        {
+          "$geoNear": {
+            "near": {
+              "type": "Point",
+              "coordinates": [
+                78.4867,
+                17.385
+              ]
             },
-            "inputStage": {
-              "stage": "FETCH",
+            "distanceField": "distance_m",
+            "maxDistance": 5000,
+            "spherical": true,
+            "query": {
+              "is_available": true
+            },
+            "key": "location"
+          }
+        },
+        {
+          "$group": {
+            "_id": "$vehicle_id",
+            "vehicle_id": {
+              "$first": "$vehicle_id"
+            },
+            "distance_m": {
+              "$first": "$distance_m"
+            },
+            "location": {
+              "$first": "$location"
+            },
+            "driver_id": {
+              "$first": "$driver_id"
+            },
+            "speed_kmph": {
+              "$first": "$speed_kmph"
+            },
+            "created_at": {
+              "$first": "$created_at"
+            }
+          }
+        },
+        {
+          "$sort": {
+            "distance_m": 1
+          }
+        },
+        {
+          "$limit": 5
+        },
+        {
+          "$project": {
+            "_id": 0,
+            "vehicle_id": 1,
+            "distance_m": {
+              "$round": [
+                "$distance_m",
+                1
+              ]
+            },
+            "location": 1,
+            "driver_id": 1,
+            "speed_kmph": 1,
+            "created_at": 1
+          }
+        }
+      ],
+      "cursor": {},
+      "$db": "test"
+    },
+    "ok": 1,
+    "$clusterTime": {
+      "clusterTime": {
+        "$timestamp": "7681581367179608068"
+      },
+      "signature": {
+        "hash": "BybRGUvAolkakWqeAd5HjWoFAPo=",
+        "keyId": {
+          "high": 1775247835,
+          "low": 3,
+          "unsigned": false
+        }
+      }
+    },
+    "operationTime": {
+      "$timestamp": "7681581367179608068"
+    }
+  },
+  "workflow4_facet": {
+    "explainVersion": "1",
+    "stages": [
+      {
+        "$cursor": {
+          "queryPlanner": {
+            "namespace": "test.TripReviews",
+            "parsedQuery": {
+              "$and": [
+                {
+                  "city": {
+                    "$eq": "Hyderabad"
+                  }
+                },
+                {
+                  "created_at": {
+                    "$gte": "2026-06-06T07:42:02.980Z"
+                  }
+                }
+              ]
+            },
+            "indexFilterSet": false,
+            "queryHash": "A2BDB576",
+            "planCacheShapeHash": "A2BDB576",
+            "planCacheKey": "18AA4E77",
+            "optimizationTimeMillis": 0,
+            "maxIndexedOrSolutionsReached": false,
+            "maxIndexedAndSolutionsReached": false,
+            "maxScansToExplodeReached": false,
+            "prunedSimilarIndexes": false,
+            "winningPlan": {
+              "isCached": false,
+              "stage": "PROJECTION_SIMPLE",
+              "transformBy": {
+                "feedback_tags": 1,
+                "rating": 1,
+                "_id": 0
+              },
               "inputStage": {
-                "stage": "IXSCAN",
-                "keyPattern": {
-                  "city": 1,
-                  "created_at": -1
-                },
-                "indexName": "idx_reviews_city_created_at",
-                "isMultiKey": false,
-                "multiKeyPaths": {
-                  "city": [],
-                  "created_at": []
-                },
-                "isUnique": false,
-                "isSparse": false,
-                "isPartial": false,
-                "indexVersion": 2,
-                "direction": "forward",
-                "indexBounds": {
-                  "city": [
-                    "[\"Hyderabad\", \"Hyderabad\"]"
-                  ],
-                  "created_at": [
-                    "[new Date(9223372036854775807), new Date(1780727184678)]"
-                  ]
+                "stage": "FETCH",
+                "inputStage": {
+                  "stage": "IXSCAN",
+                  "keyPattern": {
+                    "city": 1,
+                    "created_at": -1
+                  },
+                  "indexName": "idx_reviews_city_created_at",
+                  "isMultiKey": false,
+                  "multiKeyPaths": {
+                    "city": [],
+                    "created_at": []
+                  },
+                  "isUnique": false,
+                  "isSparse": false,
+                  "isPartial": false,
+                  "indexVersion": 2,
+                  "direction": "forward",
+                  "indexBounds": {
+                    "city": [
+                      "[\"Hyderabad\", \"Hyderabad\"]"
+                    ],
+                    "created_at": [
+                      "[new Date(9223372036854775807), new Date(1780731722980)]"
+                    ]
+                  }
                 }
               }
-            }
-          },
-          "rejectedPlans": []
-        },
-        "executionStats": {
-          "executionSuccess": true,
-          "nReturned": 23887,
-          "executionTimeMillis": 71,
-          "totalKeysExamined": 23887,
-          "totalDocsExamined": 23887,
-          "executionStages": {
-            "isCached": false,
-            "stage": "PROJECTION_SIMPLE",
-            "nReturned": 23887,
-            "executionTimeMillisEstimate": 21,
-            "works": 23888,
-            "advanced": 23887,
-            "needTime": 0,
-            "needYield": 0,
-            "saveState": 11,
-            "restoreState": 11,
-            "isEOF": 1,
-            "transformBy": {
-              "feedback_tags": 1,
-              "rating": 1,
-              "_id": 0
             },
-            "inputStage": {
-              "stage": "FETCH",
-              "nReturned": 23887,
-              "executionTimeMillisEstimate": 19,
-              "works": 23888,
-              "advanced": 23887,
+            "rejectedPlans": []
+          },
+          "executionStats": {
+            "executionSuccess": true,
+            "nReturned": 0,
+            "executionTimeMillis": 1,
+            "totalKeysExamined": 0,
+            "totalDocsExamined": 0,
+            "executionStages": {
+              "isCached": false,
+              "stage": "PROJECTION_SIMPLE",
+              "nReturned": 0,
+              "executionTimeMillisEstimate": 1,
+              "works": 1,
+              "advanced": 0,
               "needTime": 0,
               "needYield": 0,
-              "saveState": 11,
-              "restoreState": 11,
+              "saveState": 1,
+              "restoreState": 1,
               "isEOF": 1,
-              "docsExamined": 23887,
-              "alreadyHasObj": 0,
+              "transformBy": {
+                "feedback_tags": 1,
+                "rating": 1,
+                "_id": 0
+              },
               "inputStage": {
-                "stage": "IXSCAN",
-                "nReturned": 23887,
-                "executionTimeMillisEstimate": 10,
-                "works": 23888,
-                "advanced": 23887,
+                "stage": "FETCH",
+                "nReturned": 0,
+                "executionTimeMillisEstimate": 1,
+                "works": 1,
+                "advanced": 0,
                 "needTime": 0,
                 "needYield": 0,
-                "saveState": 11,
-                "restoreState": 11,
+                "saveState": 1,
+                "restoreState": 1,
                 "isEOF": 1,
-                "keyPattern": {
-                  "city": 1,
-                  "created_at": -1
-                },
-                "indexName": "idx_reviews_city_created_at",
-                "isMultiKey": false,
-                "multiKeyPaths": {
-                  "city": [],
-                  "created_at": []
-                },
-                "isUnique": false,
-                "isSparse": false,
-                "isPartial": false,
-                "indexVersion": 2,
-                "direction": "forward",
-                "indexBounds": {
-                  "city": [
-                    "[\"Hyderabad\", \"Hyderabad\"]"
-                  ],
-                  "created_at": [
-                    "[new Date(9223372036854775807), new Date(1780727184678)]"
-                  ]
-                },
-                "keysExamined": 23887,
-                "seeks": 1,
-                "dupsTested": 0,
-                "dupsDropped": 0
+                "docsExamined": 0,
+                "alreadyHasObj": 0,
+                "inputStage": {
+                  "stage": "IXSCAN",
+                  "nReturned": 0,
+                  "executionTimeMillisEstimate": 1,
+                  "works": 1,
+                  "advanced": 0,
+                  "needTime": 0,
+                  "needYield": 0,
+                  "saveState": 1,
+                  "restoreState": 1,
+                  "isEOF": 1,
+                  "keyPattern": {
+                    "city": 1,
+                    "created_at": -1
+                  },
+                  "indexName": "idx_reviews_city_created_at",
+                  "isMultiKey": false,
+                  "multiKeyPaths": {
+                    "city": [],
+                    "created_at": []
+                  },
+                  "isUnique": false,
+                  "isSparse": false,
+                  "isPartial": false,
+                  "indexVersion": 2,
+                  "direction": "forward",
+                  "indexBounds": {
+                    "city": [
+                      "[\"Hyderabad\", \"Hyderabad\"]"
+                    ],
+                    "created_at": [
+                      "[new Date(9223372036854775807), new Date(1780731722980)]"
+                    ]
+                  },
+                  "keysExamined": 0,
+                  "seeks": 1,
+                  "dupsTested": 0,
+                  "dupsDropped": 0
+                }
               }
             }
           }
-        }
-      },
-      "nReturned": 23887,
-      "executionTimeMillisEstimate": 40
-    },
-    {
-      "$facet": {
-        "ratingDistribution": [
-          {
-            "$internalFacetTeeConsumer": {},
-            "nReturned": 23887,
-            "executionTimeMillisEstimate": 40
-          },
-          {
-            "$group": {
-              "_id": "$rating",
-              "count": {
-                "$sum": {
-                  "$const": 1
-                }
-              }
-            },
-            "maxAccumulatorMemoryUsageBytes": {
-              "count": 640
-            },
-            "totalOutputDataSizeBytes": 1225,
-            "usedDisk": false,
-            "spills": 0,
-            "spilledDataStorageSize": 0,
-            "numBytesSpilledEstimate": 0,
-            "spilledRecords": 0,
-            "nReturned": 5,
-            "executionTimeMillisEstimate": 40
-          },
-          {
-            "$sort": {
-              "sortKey": {
-                "_id": 1
-              }
-            },
-            "totalDataSizeSortedBytesEstimate": 1265,
-            "usedDisk": false,
-            "spills": 0,
-            "spilledDataStorageSize": 0,
-            "nReturned": 5,
-            "executionTimeMillisEstimate": 40
-          },
-          {
-            "$project": {
-              "count": true,
-              "rating": "$_id",
-              "_id": false
-            },
-            "nReturned": 5,
-            "executionTimeMillisEstimate": 40
-          }
-        ],
-        "topFeedbackTags": [
-          {
-            "$internalFacetTeeConsumer": {},
-            "nReturned": 23887,
-            "executionTimeMillisEstimate": 0
-          },
-          {
-            "$unwind": {
-              "path": "$feedback_tags"
-            },
-            "nReturned": 47854,
-            "executionTimeMillisEstimate": 0
-          },
-          {
-            "$group": {
-              "_id": "$feedback_tags",
-              "count": {
-                "$sum": {
-                  "$const": 1
-                }
-              }
-            },
-            "maxAccumulatorMemoryUsageBytes": {
-              "count": 1664
-            },
-            "totalOutputDataSizeBytes": 3343,
-            "usedDisk": false,
-            "spills": 0,
-            "spilledDataStorageSize": 0,
-            "numBytesSpilledEstimate": 0,
-            "spilledRecords": 0,
-            "nReturned": 13,
-            "executionTimeMillisEstimate": 20
-          },
-          {
-            "$sort": {
-              "sortKey": {
-                "count": -1
-              },
-              "limit": 10
-            },
-            "totalDataSizeSortedBytesEstimate": 2650,
-            "usedDisk": false,
-            "spills": 0,
-            "spilledDataStorageSize": 0,
-            "nReturned": 10,
-            "executionTimeMillisEstimate": 20
-          },
-          {
-            "$project": {
-              "count": true,
-              "tag": "$_id",
-              "_id": false
-            },
-            "nReturned": 10,
-            "executionTimeMillisEstimate": 20
-          }
-        ],
-        "overall": [
-          {
-            "$internalFacetTeeConsumer": {},
-            "nReturned": 23887,
-            "executionTimeMillisEstimate": 10
-          },
-          {
-            "$group": {
-              "_id": {
-                "$const": null
-              },
-              "averageRating": {
-                "$avg": "$rating"
-              },
-              "totalReviews": {
-                "$sum": {
-                  "$const": 1
-                }
-              }
-            },
-            "maxAccumulatorMemoryUsageBytes": {
-              "averageRating": 104,
-              "totalReviews": 128
-            },
-            "totalOutputDataSizeBytes": 277,
-            "usedDisk": false,
-            "spills": 0,
-            "spilledDataStorageSize": 0,
-            "numBytesSpilledEstimate": 0,
-            "spilledRecords": 0,
-            "nReturned": 1,
-            "executionTimeMillisEstimate": 10
-          },
-          {
-            "$project": {
-              "totalReviews": true,
-              "averageRating": {
-                "$round": [
-                  "$averageRating",
-                  {
-                    "$const": 2
-                  }
-                ]
-              },
-              "_id": false
-            },
-            "nReturned": 1,
-            "executionTimeMillisEstimate": 10
-          }
-        ]
-      },
-      "nReturned": 1,
-      "executionTimeMillisEstimate": 70
-    },
-    {
-      "$project": {
-        "_id": true,
-        "ratingDistribution": true,
-        "topFeedbackTags": true,
-        "city": {
-          "$const": "Hyderabad"
         },
-        "windowDays": {
-          "$const": 90
+        "nReturned": {
+          "high": 0,
+          "low": 0,
+          "unsigned": false
         },
-        "averageRating": {
-          "$ifNull": [
-            {
-              "$arrayElemAt": [
-                "$overall.averageRating",
-                {
-                  "$const": 0
-                }
-              ]
-            },
-            {
-              "$const": null
-            }
-          ]
-        },
-        "totalReviews": {
-          "$ifNull": [
-            {
-              "$arrayElemAt": [
-                "$overall.totalReviews",
-                {
-                  "$const": 0
-                }
-              ]
-            },
-            {
-              "$const": 0
-            }
-          ]
-        }
-      },
-      "nReturned": 1,
-      "executionTimeMillisEstimate": 70
-    }
-  ],
-  "queryShapeHash": "9FF49BB5C4CF638904ED3C6B5AA75FB28EEDC2669E80EAA39674140D2C426006",
-  "serverInfo": {
-    "host": "srinjoy-majumdar-IdeaPad",
-    "port": 27017,
-    "version": "8.0.29",
-    "gitVersion": "559d67c651f7393e62757234a0b25cb7a8622148"
-  },
-  "serverParameters": {
-    "internalQueryFacetBufferSizeBytes": 104857600,
-    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
-    "internalLookupStageIntermediateDocumentMaxSizeBytes": 104857600,
-    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
-    "internalQueryMaxBlockingSortMemoryUsageBytes": 104857600,
-    "internalQueryProhibitBlockingMergeOnMongoS": 0,
-    "internalQueryMaxAddToSetBytes": 104857600,
-    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600,
-    "internalQueryFrameworkControl": "trySbeRestricted",
-    "internalQueryPlannerIgnoreIndexWithCollationForRegex": 1
-  },
-  "command": {
-    "aggregate": "TripReviews",
-    "pipeline": [
-      {
-        "$match": {
-          "city": "Hyderabad",
-          "created_at": {
-            "$gte": {
-              "$date": "2026-06-06T06:26:24.678Z"
-            }
-          }
+        "executionTimeMillisEstimate": {
+          "high": 0,
+          "low": 1,
+          "unsigned": false
         }
       },
       {
         "$facet": {
           "ratingDistribution": [
             {
+              "$internalFacetTeeConsumer": {},
+              "nReturned": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "executionTimeMillisEstimate": {
+                "high": 0,
+                "low": 1,
+                "unsigned": false
+              }
+            },
+            {
               "$group": {
                 "_id": "$rating",
                 "count": {
-                  "$sum": 1
+                  "$sum": {
+                    "$const": 1
+                  }
                 }
+              },
+              "maxAccumulatorMemoryUsageBytes": {
+                "count": {
+                  "high": 0,
+                  "low": 0,
+                  "unsigned": false
+                }
+              },
+              "totalOutputDataSizeBytes": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "usedDisk": false,
+              "spills": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "spilledDataStorageSize": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "numBytesSpilledEstimate": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "spilledRecords": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "nReturned": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "executionTimeMillisEstimate": {
+                "high": 0,
+                "low": 1,
+                "unsigned": false
               }
             },
             {
               "$sort": {
-                "_id": 1
+                "sortKey": {
+                  "_id": 1
+                }
+              },
+              "totalDataSizeSortedBytesEstimate": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "usedDisk": false,
+              "spills": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "spilledDataStorageSize": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "nReturned": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "executionTimeMillisEstimate": {
+                "high": 0,
+                "low": 1,
+                "unsigned": false
               }
             },
             {
               "$project": {
-                "_id": 0,
+                "count": true,
                 "rating": "$_id",
-                "count": 1
+                "_id": false
+              },
+              "nReturned": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "executionTimeMillisEstimate": {
+                "high": 0,
+                "low": 1,
+                "unsigned": false
               }
             }
           ],
           "topFeedbackTags": [
             {
-              "$unwind": "$feedback_tags"
+              "$internalFacetTeeConsumer": {},
+              "nReturned": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "executionTimeMillisEstimate": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              }
+            },
+            {
+              "$unwind": {
+                "path": "$feedback_tags"
+              },
+              "nReturned": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "executionTimeMillisEstimate": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              }
             },
             {
               "$group": {
                 "_id": "$feedback_tags",
                 "count": {
-                  "$sum": 1
+                  "$sum": {
+                    "$const": 1
+                  }
                 }
+              },
+              "maxAccumulatorMemoryUsageBytes": {
+                "count": {
+                  "high": 0,
+                  "low": 0,
+                  "unsigned": false
+                }
+              },
+              "totalOutputDataSizeBytes": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "usedDisk": false,
+              "spills": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "spilledDataStorageSize": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "numBytesSpilledEstimate": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "spilledRecords": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "nReturned": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "executionTimeMillisEstimate": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
               }
             },
             {
               "$sort": {
-                "count": -1
+                "sortKey": {
+                  "count": -1
+                },
+                "limit": {
+                  "high": 0,
+                  "low": 10,
+                  "unsigned": false
+                }
+              },
+              "totalDataSizeSortedBytesEstimate": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "usedDisk": false,
+              "spills": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "spilledDataStorageSize": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "nReturned": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "executionTimeMillisEstimate": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
               }
             },
             {
-              "$limit": 10
-            },
-            {
               "$project": {
-                "_id": 0,
+                "count": true,
                 "tag": "$_id",
-                "count": 1
+                "_id": false
+              },
+              "nReturned": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "executionTimeMillisEstimate": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
               }
             }
           ],
           "overall": [
             {
+              "$internalFacetTeeConsumer": {},
+              "nReturned": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "executionTimeMillisEstimate": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              }
+            },
+            {
               "$group": {
-                "_id": null,
+                "_id": {
+                  "$const": null
+                },
                 "averageRating": {
                   "$avg": "$rating"
                 },
                 "totalReviews": {
-                  "$sum": 1
+                  "$sum": {
+                    "$const": 1
+                  }
                 }
+              },
+              "maxAccumulatorMemoryUsageBytes": {
+                "averageRating": {
+                  "high": 0,
+                  "low": 0,
+                  "unsigned": false
+                },
+                "totalReviews": {
+                  "high": 0,
+                  "low": 0,
+                  "unsigned": false
+                }
+              },
+              "totalOutputDataSizeBytes": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "usedDisk": false,
+              "spills": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "spilledDataStorageSize": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "numBytesSpilledEstimate": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "spilledRecords": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "nReturned": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "executionTimeMillisEstimate": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
               }
             },
             {
               "$project": {
-                "_id": 0,
+                "totalReviews": true,
                 "averageRating": {
                   "$round": [
                     "$averageRating",
-                    2
+                    {
+                      "$const": 2
+                    }
                   ]
                 },
-                "totalReviews": 1
+                "_id": false
+              },
+              "nReturned": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
+              },
+              "executionTimeMillisEstimate": {
+                "high": 0,
+                "low": 0,
+                "unsigned": false
               }
             }
           ]
+        },
+        "nReturned": {
+          "high": 0,
+          "low": 1,
+          "unsigned": false
+        },
+        "executionTimeMillisEstimate": {
+          "high": 0,
+          "low": 1,
+          "unsigned": false
         }
       },
       {
         "$project": {
+          "_id": true,
+          "ratingDistribution": true,
+          "topFeedbackTags": true,
           "city": {
-            "$literal": "Hyderabad"
+            "$const": "Hyderabad"
           },
           "windowDays": {
-            "$literal": 90
+            "$const": 90
           },
-          "ratingDistribution": 1,
-          "topFeedbackTags": 1,
           "averageRating": {
             "$ifNull": [
               {
                 "$arrayElemAt": [
                   "$overall.averageRating",
-                  0
+                  {
+                    "$const": 0
+                  }
                 ]
               },
-              null
+              {
+                "$const": null
+              }
             ]
           },
           "totalReviews": {
@@ -499,17 +1100,192 @@
               {
                 "$arrayElemAt": [
                   "$overall.totalReviews",
-                  0
+                  {
+                    "$const": 0
+                  }
                 ]
               },
-              0
+              {
+                "$const": 0
+              }
             ]
           }
+        },
+        "nReturned": {
+          "high": 0,
+          "low": 1,
+          "unsigned": false
+        },
+        "executionTimeMillisEstimate": {
+          "high": 0,
+          "low": 1,
+          "unsigned": false
         }
       }
     ],
-    "cursor": {},
-    "$db": "ridesync"
-  },
-  "ok": 1
+    "queryShapeHash": "670CD9D9EEAA43979843402DF8BACE52303AE880B5A5D5B39F022D8CD50DAFF1",
+    "serverInfo": {
+      "host": "ac-fxb6gdz-shard-00-01.6rpofxj.mongodb.net",
+      "port": 27017,
+      "version": "8.0.30",
+      "gitVersion": "360770fbc9b6a893748150d2ab2799e119b9fac9"
+    },
+    "serverParameters": {
+      "internalQueryFacetBufferSizeBytes": 104857600,
+      "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+      "internalLookupStageIntermediateDocumentMaxSizeBytes": 16793600,
+      "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+      "internalQueryMaxBlockingSortMemoryUsageBytes": 33554432,
+      "internalQueryProhibitBlockingMergeOnMongoS": 0,
+      "internalQueryMaxAddToSetBytes": 104857600,
+      "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600,
+      "internalQueryFrameworkControl": "trySbeRestricted",
+      "internalQueryPlannerIgnoreIndexWithCollationForRegex": 1
+    },
+    "command": {
+      "aggregate": "TripReviews",
+      "pipeline": [
+        {
+          "$match": {
+            "city": "Hyderabad",
+            "created_at": {
+              "$gte": "2026-06-06T07:42:02.980Z"
+            }
+          }
+        },
+        {
+          "$facet": {
+            "ratingDistribution": [
+              {
+                "$group": {
+                  "_id": "$rating",
+                  "count": {
+                    "$sum": 1
+                  }
+                }
+              },
+              {
+                "$sort": {
+                  "_id": 1
+                }
+              },
+              {
+                "$project": {
+                  "_id": 0,
+                  "rating": "$_id",
+                  "count": 1
+                }
+              }
+            ],
+            "topFeedbackTags": [
+              {
+                "$unwind": "$feedback_tags"
+              },
+              {
+                "$group": {
+                  "_id": "$feedback_tags",
+                  "count": {
+                    "$sum": 1
+                  }
+                }
+              },
+              {
+                "$sort": {
+                  "count": -1
+                }
+              },
+              {
+                "$limit": 10
+              },
+              {
+                "$project": {
+                  "_id": 0,
+                  "tag": "$_id",
+                  "count": 1
+                }
+              }
+            ],
+            "overall": [
+              {
+                "$group": {
+                  "_id": null,
+                  "averageRating": {
+                    "$avg": "$rating"
+                  },
+                  "totalReviews": {
+                    "$sum": 1
+                  }
+                }
+              },
+              {
+                "$project": {
+                  "_id": 0,
+                  "averageRating": {
+                    "$round": [
+                      "$averageRating",
+                      2
+                    ]
+                  },
+                  "totalReviews": 1
+                }
+              }
+            ]
+          }
+        },
+        {
+          "$project": {
+            "city": {
+              "$literal": "Hyderabad"
+            },
+            "windowDays": {
+              "$literal": 90
+            },
+            "ratingDistribution": 1,
+            "topFeedbackTags": 1,
+            "averageRating": {
+              "$ifNull": [
+                {
+                  "$arrayElemAt": [
+                    "$overall.averageRating",
+                    0
+                  ]
+                },
+                null
+              ]
+            },
+            "totalReviews": {
+              "$ifNull": [
+                {
+                  "$arrayElemAt": [
+                    "$overall.totalReviews",
+                    0
+                  ]
+                },
+                0
+              ]
+            }
+          }
+        }
+      ],
+      "cursor": {},
+      "$db": "test"
+    },
+    "ok": 1,
+    "$clusterTime": {
+      "clusterTime": {
+        "$timestamp": "7681582174633459944"
+      },
+      "signature": {
+        "hash": "cJmhjHTqcsCQEsWzRa9/pnU/hjY=",
+        "keyId": {
+          "high": 1775247835,
+          "low": 3,
+          "unsigned": false
+        }
+      }
+    },
+    "operationTime": {
+      "$timestamp": "7681582174633459944"
+    }
+  }
 }
