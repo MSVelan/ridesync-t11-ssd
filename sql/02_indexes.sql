@@ -16,4 +16,3 @@ CREATE INDEX idx_trips_completed_vehicle_date
     INCLUDE (fare_amount)
     WHERE status = 'COMPLETED';
 
-
