@@ -1,193 +1,197 @@
-import argparse
-import random
+"""RideSync MongoDB data generator.
 
-import psycopg2
+Seeds VehicleMetadata, TripReviews and TelemetryPings.
+Run before mongo/01_collections_and_indexes.js.
+
+    python3 data_generation/mongo_seeder.py --drop
+"""
+
+import argparse
+import os
+import random
+from datetime import datetime, timedelta, timezone
+
 from faker import Faker
-from psycopg2.extras import execute_values
-from tqdm import trange, tqdm
+from pymongo import MongoClient
 
 fake = Faker()
-Faker.seed(42)
+
+CITIES = {
+    "Hyderabad": (17.3850, 78.4867),
+    "Bengaluru": (12.9716, 77.5946),
+    "Mumbai": (19.0760, 72.8777),
+    "Delhi": (28.6139, 77.2090),
+    "Chennai": (13.0827, 80.2707),
+}
+
+FEEDBACK_TAGS = [
+    "clean_car", "safe_driving", "polite_driver", "on_time", "smooth_ride",
+    "good_music", "helpful_with_luggage", "rash_driving", "late_pickup",
+    "car_smelled", "rude_driver", "took_long_route", "ac_not_working",
+]
+
+VEHICLE_CLASSES = ["HATCHBACK", "SEDAN", "SUV", "AUTO", "BIKE"]
+FUEL_TYPES = ["PETROL", "DIESEL", "CNG", "ELECTRIC"]
+INSPECTION_RESULTS = ["PASS", "PASS", "PASS", "CONDITIONAL", "FAIL"]
 
 
-def clear_tables(cur):
-    cur.execute(
-        "TRUNCATE trips, wallet_audit_logs, vehicles, riders "
-        "RESTART IDENTITY CASCADE"
-    )
+def jitter(lat, lon, km=12.0):
+    dlat = random.uniform(-km, km) / 111.0
+    dlon = random.uniform(-km, km) / 111.0
+    return lat + dlat, lon + dlon
 
 
-def insert_riders(cur, count=10000):
-    riders = [
-        (
-            fake.name(),
-            fake.pydecimal(min_value=100, max_value=50000, right_digits=2),
-        )
-        for _ in trange(count, desc="Generating riders")
-    ]
-    execute_values(
-        cur,
-        "INSERT INTO riders (name, wallet_balance) VALUES %s",
-        riders,
-    )
+def seed_vehicle_metadata(db, vehicle_count, batch_size):
+    docs, total = [], 0
 
-    cur.execute("SELECT id FROM riders ORDER BY id")
-    return [row[0] for row in cur.fetchall()]
+    for vehicle_id in range(1, vehicle_count + 1):
+        inspections = [
+            {
+                "inspected_on": datetime.now(timezone.utc) - timedelta(days=random.randint(1, 900)),
+                "centre": fake.company() + " Auto Centre",
+                "odometer_km": random.randint(1000, 250000),
+                "result": random.choice(INSPECTION_RESULTS),
+                "notes": fake.sentence(nb_words=6),
+            }
+            for _ in range(random.randint(1, 4))
+        ]
 
-
-def insert_vehicles(cur, count=2000):
-    vehicles = [
-        (
-            f"{fake.license_plate()}-{i:05d}"[:20],
-            random.choice(["ECONOMY", "PREMIUM", "SUV", "AUTO"]),
-            fake.boolean(chance_of_getting_true=75),
-        )
-        for i in trange(count, desc="Generating vehicles")
-    ]
-    execute_values(
-        cur,
-        "INSERT INTO vehicles (license_plate, class, is_active) VALUES %s",
-        vehicles,
-    )
-
-    cur.execute("SELECT id FROM vehicles ORDER BY id")
-    return [row[0] for row in cur.fetchall()]
-
-
-def get_balances(cur):
-    
-    cur.execute("SELECT id, wallet_balance FROM riders")
-    return dict(cur.fetchall())
-
-
-def random_topups(cur, rider_ids, balances, topup_fraction=0.2):
-    
-    topup_riders = random.sample(rider_ids, k=int(len(rider_ids) * topup_fraction))
-    for rider_id in tqdm(topup_riders, desc="Random top-ups"):
-        topup_amount = fake.pydecimal(min_value=50, max_value=2000, right_digits=2)
-        cur.execute(
-            "UPDATE riders SET wallet_balance = wallet_balance + %s WHERE id = %s",
-            (topup_amount, rider_id),
-        )
-        balances[rider_id] += topup_amount
-    return len(topup_riders)
-
-
-def book_trips(cur, rider_ids, vehicle_ids, balances, count=100000):
-   
-    active_trip_id = {}  
-
-    for _ in trange(count, desc="Booking trips"):
-        rider_id = random.choice(rider_ids)
-        vehicle_id = random.choice(vehicle_ids)
-        fare_amount = fake.pydecimal(min_value=100, max_value=3000, right_digits=2)
-
-        
-        if rider_id in active_trip_id:
-            cur.execute(
-                "UPDATE trips SET status = 'COMPLETED' WHERE id = %s",
-                (active_trip_id.pop(rider_id),),
+        features = {
+            "air_conditioning": random.random() < 0.8,
+            "fuel_type": random.choice(FUEL_TYPES),
+        }
+        if random.random() < 0.3:
+            features["child_seat"] = random.random() < 0.5
+        if random.random() < 0.2:
+            features["wheelchair_accessible"] = True
+        if random.random() < 0.4:
+            features["infotainment"] = random.sample(
+                ["bluetooth", "usb_c", "aux", "android_auto"], k=random.randint(1, 3)
             )
 
-        
-        if balances[rider_id] < fare_amount:
-            shortfall = fare_amount - balances[rider_id]
-            topup_amount = shortfall + fake.pydecimal(
-                min_value=10, max_value=200, right_digits=2
-            )
-            cur.execute(
-                "UPDATE riders SET wallet_balance = wallet_balance + %s WHERE id = %s",
-                (topup_amount, rider_id),
-            )
-            balances[rider_id] += topup_amount
-            forced_topup_count += 1
+        docs.append({
+            "vehicle_id": vehicle_id,
+            "features": features,
+            "inspections": inspections,
+            "certifications": random.sample(
+                ["PUC", "COMMERCIAL_PERMIT", "FITNESS", "INSURANCE"], k=random.randint(1, 4)
+            ),
+        })
 
-        cur.execute(
-            "CALL sp_atomic_booking(%s, %s, %s)",
-            (rider_id, vehicle_id, fare_amount),
-        )
-        balances[rider_id] -= fare_amount
+        if len(docs) >= batch_size:
+            db.VehicleMetadata.insert_many(docs, ordered=False)
+            total += len(docs)
+            docs = []
 
-        
-        cur.execute(
-            "SELECT id FROM trips WHERE rider_id = %s ORDER BY id DESC LIMIT 1",
-            (rider_id,),
-        )
-        trip_id = cur.fetchone()[0]
+    if docs:
+        db.VehicleMetadata.insert_many(docs, ordered=False)
+        total += len(docs)
 
-        
-        status = random.choices(
-            ["REQUESTED", "IN TRANSIT", "COMPLETED"],
-            weights=[0.34, 0.33, 0.33],
-        )[0]
-        if status != "REQUESTED":
-            cur.execute(
-                "UPDATE trips SET status = %s WHERE id = %s",
-                (status, trip_id),
-            )
-        if status != "COMPLETED":
-            active_trip_id[rider_id] = trip_id
+    print(f"VehicleMetadata: {total}")
 
-    return forced_topup_count, count
+
+def seed_trip_reviews(db, count, vehicle_count, rider_count, batch_size):
+    cities = list(CITIES.keys())
+    now = datetime.now(timezone.utc)
+    docs, total = [], 0
+
+    for trip_id in range(1, count + 1):
+        rating = random.choices([1, 2, 3, 4, 5], weights=[5, 7, 15, 33, 40])[0]
+
+        if rating >= 4:
+            pool = FEEDBACK_TAGS[:7]
+        elif rating == 3:
+            pool = FEEDBACK_TAGS
+        else:
+            pool = FEEDBACK_TAGS[7:]
+
+        docs.append({
+            "trip_id": trip_id,
+            "rider_id": random.randint(1, rider_count),
+            "vehicle_id": random.randint(1, vehicle_count),
+            "rating": rating,
+            "feedback_tags": random.sample(pool, k=random.randint(1, 3)),
+            "comment": fake.sentence(nb_words=12),
+            "city": random.choice(cities),
+            "created_at": now - timedelta(minutes=random.randint(0, 90 * 24 * 60)),
+        })
+
+        if len(docs) >= batch_size:
+            db.TripReviews.insert_many(docs, ordered=False)
+            total += len(docs)
+            docs = []
+
+    if docs:
+        db.TripReviews.insert_many(docs, ordered=False)
+        total += len(docs)
+
+    print(f"TripReviews: {total}")
+
+
+def seed_telemetry_pings(db, count, vehicle_count, batch_size, window_minutes):
+    city_points = list(CITIES.values())
+    now = datetime.now(timezone.utc)
+    docs, total = [], 0
+
+    for _ in range(count):
+        lat, lon = jitter(*random.choice(city_points))
+
+        docs.append({
+            "vehicle_id": random.randint(1, vehicle_count),
+            "driver_id": random.randint(1, vehicle_count),
+            # longitude first, as GeoJSON requires
+            "location": {"type": "Point", "coordinates": [float(lon), float(lat)]},
+            "is_available": random.random() < 0.35,
+            "speed_kmph": round(random.uniform(0, 80), 1),
+            # kept inside the 2 hour TTL window so the reaper does not delete the seed data
+            "created_at": now - timedelta(minutes=random.randint(0, window_minutes)),
+        })
+
+        if len(docs) >= batch_size:
+            db.TelemetryPings.insert_many(docs, ordered=False)
+            total += len(docs)
+            docs = []
+            print(f"  pings inserted: {total}", end="\r")
+
+    if docs:
+        db.TelemetryPings.insert_many(docs, ordered=False)
+        total += len(docs)
+
+    print(f"TelemetryPings: {total}          ")
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dsn", required=True)
-    parser.add_argument("--riders", type=int, default=10000)
+    parser.add_argument("--uri", default=os.environ.get("MONGO_URI", "mongodb://localhost:27017"))
+    parser.add_argument("--db", default=os.environ.get("MONGO_DB", "ridesync"))
+    parser.add_argument("--drop", action="store_true")
     parser.add_argument("--vehicles", type=int, default=2000)
-    parser.add_argument(
-        "--trips",
-        type=int,
-        default=100000,
-        help=(
-            "Trips to book. Every booking now produces exactly one DEBIT "
-            "ledger row (the charge happens at booking, not completion), "
-            "so this maps far more directly to ledger row count than it "
-            "used to when only COMPLETED trips counted."
-        ),
-    )
-    parser.add_argument(
-        "--topup-fraction",
-        type=float,
-        default=0.2,
-        help="Fraction of riders who get one random top-up, independent of trips.",
-    )
+    parser.add_argument("--riders", type=int, default=10000)
+    parser.add_argument("--reviews", type=int, default=100000)
+    parser.add_argument("--pings", type=int, default=500000)
+    parser.add_argument("--batch-size", type=int, default=10000)
+    parser.add_argument("--ping-window-minutes", type=int, default=90)
+    parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
 
-    conn = psycopg2.connect(args.dsn)
-    try:
-        cur = conn.cursor()
+    random.seed(args.seed)
+    Faker.seed(args.seed)
 
-        clear_tables(cur)
-        conn.commit()
+    client = MongoClient(args.uri)
+    db = client[args.db]
 
-        rider_ids = insert_riders(cur, args.riders)
-        conn.commit()
+    if args.drop:
+        for name in ("VehicleMetadata", "TripReviews", "TelemetryPings"):
+            db.drop_collection(name)
+        print("dropped existing collections")
 
-        vehicle_ids = insert_vehicles(cur, args.vehicles)
-        conn.commit()
+    started = datetime.now()
+    seed_vehicle_metadata(db, args.vehicles, args.batch_size)
+    seed_trip_reviews(db, args.reviews, args.vehicles, args.riders, args.batch_size)
+    seed_telemetry_pings(db, args.pings, args.vehicles, args.batch_size, args.ping_window_minutes)
 
-        balances = get_balances(cur)
-
-        topup_count = random_topups(cur, rider_ids, balances, args.topup_fraction)
-        conn.commit()
-
-        forced_topup_count, booked_count = book_trips(
-            cur, rider_ids, vehicle_ids, balances, args.trips
-        )
-        conn.commit()
-    finally:
-        conn.close()
-
-    ledger_rows = topup_count + forced_topup_count + booked_count
-    print("Data inserted successfully.")
-    print(
-        f"Ledger rows written: {ledger_rows} "
-        f"(top-ups: {topup_count}, forced top-ups: {forced_topup_count}, "
-        f"booking debits: {booked_count})"
-    )
-    print("Not close enough to your target? Re-run with a higher/lower --trips.")
+    print(f"\ndone in {(datetime.now() - started).total_seconds():.1f}s")
+    client.close()
 
 
 if __name__ == "__main__":
