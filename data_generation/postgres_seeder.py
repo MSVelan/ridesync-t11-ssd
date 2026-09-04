@@ -73,62 +73,80 @@ def random_topups(cur, rider_ids, balances, topup_fraction=0.2):
     return len(topup_riders)
 
 
+BATCH_SIZE = 2000  # statements per round trip, not rows — tune down if Neon complains about tx size
+
 def book_trips(cur, rider_ids, vehicle_ids, balances, count=100000):
-  
-    active_trip_id = {}  
+    # Sanity-check the id-tracking assumption below before trusting it.
+    cur.execute("SELECT COUNT(*) FROM trips")
+    assert cur.fetchone()[0] == 0, (
+        "trips is not empty — next_trip_id tracking assumes a fresh, "
+        "TRUNCATE...RESTART IDENTITY'd table seeded only by this function"
+    )
+
+    active_trip_id = {}
     forced_topup_count = 0
+    next_trip_id = 1  # trips.id is IDENTITY + table truncated first + sole writer
+                       # -> id is just the row's insertion order, no SELECT needed
+
+    statements = []
+
+    def flush():
+        if not statements:
+            return
+        try:
+            cur.execute(b";".join(statements))
+            cur.connection.commit()
+        except Exception:
+            cur.connection.rollback()
+            raise
+        statements.clear()
 
     for _ in trange(count, desc="Booking trips"):
         rider_id = random.choice(rider_ids)
         vehicle_id = random.choice(vehicle_ids)
         fare_amount = fake.pydecimal(min_value=100, max_value=3000, right_digits=2)
 
-        
         if rider_id in active_trip_id:
-            cur.execute(
+            statements.append(cur.mogrify(
                 "UPDATE trips SET status = 'COMPLETED' WHERE id = %s",
                 (active_trip_id.pop(rider_id),),
-            )
+            ))
 
-       
         if balances[rider_id] < fare_amount:
             shortfall = fare_amount - balances[rider_id]
-            topup_amount = shortfall + fake.pydecimal(
-                min_value=10, max_value=200, right_digits=2
-            )
-            cur.execute(
+            topup_amount = shortfall + fake.pydecimal(min_value=10, max_value=200, right_digits=2)
+            statements.append(cur.mogrify(
                 "UPDATE riders SET wallet_balance = wallet_balance + %s WHERE id = %s",
                 (topup_amount, rider_id),
-            )
+            ))
             balances[rider_id] += topup_amount
             forced_topup_count += 1
 
-        cur.execute(
+        statements.append(cur.mogrify(
             "CALL sp_atomic_booking(%s, %s, %s)",
             (rider_id, vehicle_id, fare_amount),
-        )
+        ))
         balances[rider_id] -= fare_amount
 
-      
-        cur.execute(
-            "SELECT id FROM trips WHERE rider_id = %s ORDER BY id DESC LIMIT 1",
-            (rider_id,),
-        )
-        trip_id = cur.fetchone()[0]
+        trip_id = next_trip_id
+        next_trip_id += 1
 
-        
         status = random.choices(
             ["REQUESTED", "IN TRANSIT", "COMPLETED"],
             weights=[0.34, 0.33, 0.33],
         )[0]
         if status != "REQUESTED":
-            cur.execute(
+            statements.append(cur.mogrify(
                 "UPDATE trips SET status = %s WHERE id = %s",
                 (status, trip_id),
-            )
+            ))
         if status != "COMPLETED":
             active_trip_id[rider_id] = trip_id
 
+        if len(statements) >= BATCH_SIZE:
+            flush()
+
+    flush()
     return forced_topup_count, count
 
 
