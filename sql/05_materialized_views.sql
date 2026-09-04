@@ -11,3 +11,12 @@ WITH NO DATA;
 -- REFRESH CONCURRENTLY requires a unique index to not lock readers
 CREATE UNIQUE INDEX idx_mv_vehicle_earnings_vehicle_id ON mv_vehicle_earnings (vehicle_id);
 REFRESH MATERIALIZED VIEW mv_vehicle_earnings;
+
+-- ongoing refreshes go through this, so the view can be
+-- rebuilt without locking out readers
+CREATE OR REPLACE FUNCTION fn_refresh_vehicle_earnings()
+RETURNS VOID AS $$
+BEGIN
+    REFRESH MATERIALIZED VIEW CONCURRENTLY mv_vehicle_earnings;
+END;
+$$ LANGUAGE plpgsql;

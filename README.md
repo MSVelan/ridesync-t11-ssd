@@ -15,5 +15,14 @@
   ./docs/generate_erd.py --dsn "postgresql://user:pass@localhost:5432/ridesync"
   ```
 
+
 to run the seeder, use the following command:
 ``` python data_generation/postgres_seeder.py --dsn postgres://username:password@localhost:5432/ridesync```
+
+
+- Create .env file with contents:
+  ```
+  NEON_DSN=<public_neon_db_conn_string>
+  ATLAS_URI=<public_atlas_db_conn_string>
+  ```
+
