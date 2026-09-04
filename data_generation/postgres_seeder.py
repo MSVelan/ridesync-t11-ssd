@@ -85,9 +85,9 @@ def insert_trips(cur, rider_ids, vehicle_ids, conn, count=100000, batch_size=500
             VALUES %s
             """,
             chunk,
-            page_size=batch_size,   # send the whole chunk as one round trip
+            page_size=batch_size,   
         )
-        conn.commit()   # commit per chunk, so a later failure doesn't lose earlier progress
+        conn.commit()   
 
     return trips
 
@@ -113,8 +113,7 @@ def simulate_wallet_activity(cur, conn, rider_ids, trips, batch_size=1000):
         )
         conn.commit()
 
-    # 2. Trip-fare debits (with top-up-if-short logic preserved, batched --
-    #    no per-row execute_batch calls inside this loop anymore)
+   
     completed_trips = [t for t in trips if t[3] == "COMPLETED"]
     shortfall_params = []
     debit_params = []
@@ -132,8 +131,7 @@ def simulate_wallet_activity(cur, conn, rider_ids, trips, batch_size=1000):
         debit_params.append((fare_amount, rider_id))
         balances[rider_id] -= fare_amount
 
-    # apply shortfall top-ups BEFORE debits -- guarantees no debit ever
-    # pushes a balance negative and trips the CHECK constraint
+   
     for i in trange(0, len(shortfall_params), batch_size, desc="Applying shortfall top-ups"):
         chunk = shortfall_params[i:i + batch_size]
         execute_batch(
