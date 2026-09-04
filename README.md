@@ -1,3 +1,6 @@
+Repository: https://github.com/MSVelan/ridesync-t11-ssd
+Final commit: 144b49559464c3fe14bb0ad9d401ca7cd735e641
+
 # RideSync — Team 11
 
 CS6.302 Software Systems Development, Assignment 1.
@@ -60,8 +63,10 @@ Locally, drop `--uri` and use `mongosh ridesync`.
 Seed first, then build indexes. The TTL index deletes anything older than two
 hours, so creating it before the load would delete seed data as it arrived.
 
-Volumes generated: 5,000 VehicleMetadata, 120,000 TripReviews,
-500,000 TelemetryPings.
+Volumes generated: 2,000 VehicleMetadata, 100,000 TripReviews,
+500,000 TelemetryPings. These match the PostgreSQL seeder's 2,000 vehicles,
+10,000 riders and 100,000 trips, so every ID referenced from Mongo exists in
+Postgres.
 
 ### Indexes
 
@@ -88,10 +93,10 @@ leading match the whole thing degenerates into a collection scan. Matching on
 `{city, created_at}` lets it ride `idx_reviews_city_created_at` instead:
 
 ```
-plan: IXSCAN  docsExamined=23887  nReturned=23887  collectionTotal=120000
+plan: IXSCAN  docsExamined=20243  nReturned=20243  collectionTotal=100000
 ```
 
-23,887 documents examined out of 120,000, and every one of them returned, so
+20,243 documents examined out of 100,000, and every one of them returned, so
 nothing was read and thrown away. Full `explain("executionStats")` output is
 in `performance/mongo_execution_stats.json`, regenerated with:
 
@@ -100,11 +105,23 @@ W4_EXPLAIN_ONLY=1 mongosh --quiet ridesync --file mongo/03_workflow4_facet.js \
     > performance/mongo_execution_stats.json
 ```
 
+### Workflow 3 — Nearest Available Vehicle
+
+`mongo/02_workflow3_geonear.js` uses `$geoNear` against the 2dsphere index to
+find the closest available vehicles within a 5 km radius, returning distances
+in metres. Its `explain("executionStats")` output is appended to the same
+`performance/mongo_execution_stats.json`.
+
+```bash
+mongosh ridesync mongo/02_workflow3_geonear.js
+```
+
 ### Assumptions
 
 - `vehicle_id`, `rider_id` and `trip_id` are the PostgreSQL integer primary
   keys. Mongo does not enforce them as foreign keys, so keeping the two
-  engines consistent is the application's job.
+  engines consistent is the application's job. Both seeders use matching
+  entity counts so that stays true.
 - `created_at` is a BSON Date everywhere, never an ISO string. A TTL index on
   a string field builds without complaint and then silently expires nothing.
 - Pings are seeded inside a 90-minute window so the two-hour TTL does not

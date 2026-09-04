@@ -133,26 +133,16 @@ def book_trips(cur, rider_ids, vehicle_ids, balances, count=100000):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dsn", required=True)
-    parser.add_argument("--riders", type=int, default=10000)
+    parser.add_argument("--uri", default=os.environ.get("MONGO_URI", "mongodb://localhost:27017"))
+    parser.add_argument("--db", default=os.environ.get("MONGO_DB", "ridesync"))
+    parser.add_argument("--drop", action="store_true")
     parser.add_argument("--vehicles", type=int, default=2000)
-    parser.add_argument(
-        "--trips",
-        type=int,
-        default=100000,
-        help=(
-            "Trips to book. Every booking now produces exactly one DEBIT "
-            "ledger row (the charge happens at booking, not completion), "
-            "so this maps far more directly to ledger row count than it "
-            "used to when only COMPLETED trips counted."
-        ),
-    )
-    parser.add_argument(
-        "--topup-fraction",
-        type=float,
-        default=0.2,
-        help="Fraction of riders who get one random top-up, independent of trips.",
-    )
+    parser.add_argument("--riders", type=int, default=10000)
+    parser.add_argument("--reviews", type=int, default=100000)
+    parser.add_argument("--pings", type=int, default=500000)
+    parser.add_argument("--batch-size", type=int, default=10000)
+    parser.add_argument("--ping-window-minutes", type=int, default=90)
+    parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
 
     conn = psycopg2.connect(args.dsn)
